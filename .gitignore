@@ -1,0 +1,9 @@
+﻿################################################################################
+# Tento soubor .gitignore byl automaticky vytvořen aplikací Microsoft(R) Visual Studio.
+################################################################################
+
+/Hanzal/Debug
+/Hanzal/Helloworld/Debug
+/Hanzal/Helloworld/x64/Debug
+/Hanzal/.vs
+/Hanzal/x64/Debug
