@@ -140,11 +140,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Data\Test.cpp" />
     <ClCompile Include="hello-world.cpp" />
+    <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Data\Test.h" />
+    <ClInclude Include="Mesh.cpp" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="pgr_sem.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Shader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\Test.mtl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="..\..\..\..\..\Downloads\asteroids_2_transforms\asteroids\data\ghoul.obj" />
+    <Object Include="Data\ghoul.obj" />
+    <Object Include="Data\Test.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

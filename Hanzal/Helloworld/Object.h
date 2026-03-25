@@ -1,6 +1,11 @@
-#include "pgr.h"
+#include <iostream>
 #include "pgr_sem.h"
- 
+#include "Mesh.h"
+#include "Shader.h"
+
+
+#ifndef __OBJECT_H
+#define __OBJECT_H
 
 #define G 10
 
@@ -9,11 +14,20 @@ class Object
   protected:
     Transform transform;
     glm::vec3 direction;
+    MeshGeometry* mesh = NULL;
 
   public:
-      Object() {};
-    Object(Transform _transform): transform(_transform) {};
-    
+    Object(Transform _transform, const char* mesh_file_location, SCommonShaderProgram& shader)
+    {
+        if (!loadSingleMesh(mesh_file_location, shader, &mesh))
+            std::cout << "ERROR: Failed to load mesh: " << mesh_file_location << std::endl;
+        CHECK_GL_ERROR();
+    };
+
+    ~Object()
+    {
+        cleanupGeometry(mesh);
+    }
     void Update(float deltaTime)
     {
         glm::vec3 motion = direction * deltaTime;
@@ -30,6 +44,24 @@ class Object
     {
         return transform.position;
     }
+
+    void renderObject(SCommonShaderProgram& shaderProgram, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+    {
+        glUseProgram(shaderProgram.program);
+
+        glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), transform.position);
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(transform.scale));
+
+        setTransformUniforms(&shaderProgram, modelMatrix, viewMatrix, projectionMatrix);
+
+        glBindVertexArray(mesh->vertexArrayObject);
+        glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_INT, 0);
+
+        glBindVertexArray(0);
+        glUseProgram(0);
+
+        return;
+    }
 };
 
 
@@ -42,11 +74,14 @@ class Planet : Object
 
 
   public:
-    Planet(Transform _transform, float _mass) : Object(_transform), mass(_mass) {};
+    Planet(Transform _transform, const char* mesh_file_location, SCommonShaderProgram& shader, float _mass, Planet* _orbitPlanet) : 
+            Object(_transform, mesh_file_location, shader),
+            mass(_mass), 
+            orbitPlanet(_orbitPlanet)
+    {
 
-    Planet(Transform _transform, float _mass, Planet* _orbitPlanet) : Object(_transform), 
-                                                                      mass(_mass), 
-                                                                      orbitPlanet(_orbitPlanet) {};
+
+    };
 
     void Update(float timeDelta)
     {
@@ -79,3 +114,6 @@ class Planet : Object
     }
     
 };
+
+
+#endif __OBJECT_H

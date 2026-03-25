@@ -18,6 +18,12 @@
     <ClCompile Include="hello-world.cpp">
       <Filter>Zdrojové soubory</Filter>
     </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Zdrojové soubory</Filter>
+    </ClCompile>
+    <ClCompile Include="Data\Test.cpp">
+      <Filter>Zdrojové soubory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Object.h">
@@ -26,5 +32,25 @@
     <ClInclude Include="pgr_sem.h">
       <Filter>Hlavičkové soubory</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.cpp">
+      <Filter>Zdrojové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\Test.h">
+      <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\Test.mtl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Data\Test.obj" />
+    <Object Include="..\..\..\..\..\Downloads\asteroids_2_transforms\asteroids\data\ghoul.obj" />
+    <Object Include="Data\ghoul.obj" />
   </ItemGroup>
 </Project>

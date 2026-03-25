@@ -1,7 +1,7 @@
+#include "pgr.h"
+
 #ifndef __PGR_SEM_H
 #define __PGR_SEM_H
-
-#include "pgr.h"
 
 struct Transform
 {
@@ -17,12 +17,5 @@ struct Camera
     glm::vec3 up;
 };
 
-typedef struct _MeshGeometry {
-  GLuint        vertexBufferObject;   // identifier for the vertex buffer object
-  GLuint        elementBufferObject;  // identifier for the element buffer object
-  GLuint        vertexArrayObject;    // identifier for the vertex array object
-  unsigned int  numTriangles;         // number of triangles in the mesh
-
-} MeshGeometry;
 
 #endif

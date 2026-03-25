@@ -4,9 +4,15 @@
  * \author Tomas Barak
  */
 
-#include <iostream>
 #include "pgr.h"
 #include "Object.h"
+#include "Mesh.h"
+#include "Shader.h"
+
+
+#define SCENE_WIDTH  1.0f
+#define SCENE_HEIGHT 1.0f
+#define SCENE_DEPTH  1.0f
 
 const int WIN_WIDTH = 512;
 const int WIN_HEIGHT = 512;
@@ -59,19 +65,8 @@ void init() {
       pgr::createShaderFromSource(GL_FRAGMENT_SHADER, fragmentShaderSrc),
       0
     };
-    GLuint shaders2[] = {
-      pgr::createShaderFromSource(GL_VERTEX_SHADER, vertexShaderSrc),
-      pgr::createShaderFromSource(GL_FRAGMENT_SHADER, fragmentShaderSrc2),
-      0
-    };
-    GLuint shaders3[]
-    {
-        pgr::createShaderFromSource(GL_VERTEX_SHADER, vertexShaderSrc),
-        pgr::createShaderFromSource(GL_FRAGMENT_SHADER, fragmentShaderSrc3)
-    };
-    shader3 = pgr::createProgram(shaders3);
+    
     shaderProgram = pgr::createProgram(shaders);
-    shaderProgram2 = pgr::createProgram(shaders2);
     static const float vertices[] = {
         // --- 1. Rovina (Bílý trojúhelník) - Rovnobìžná s obrazovkou ---
         // Všechny vrcholy mají Z = 0.0f, takže rovina leží naplocho "uprostøed" hloubky
@@ -114,13 +109,43 @@ void draw() {
   glBindVertexArray(vao);
   //glDrawArrays(GL_TRIANGLES, 0, 3);
   glDrawElements(GL_TRIANGLE_STRIP, 3, GL_UNSIGNED_SHORT, 0);
-  glUseProgram(shaderProgram2);
-  glDrawElements(GL_TRIANGLE_STRIP, 3, GL_UNSIGNED_SHORT, (void*)(3*sizeof(unsigned short)));
-  glUseProgram(shader3);
-  glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, (void*)(6 * sizeof(unsigned short)));
-
+ 
   glutSwapBuffers();
 }
+
+
+std::vector<Object> objects;
+SCommonShaderProgram sc;
+
+
+void onDisplay(void)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //-------------------------------------------------
+    const glm::mat4 orthoProjectionMatrix = glm::ortho(
+        -SCENE_WIDTH, SCENE_WIDTH,
+        -SCENE_HEIGHT, SCENE_HEIGHT,
+        -10.0f * SCENE_DEPTH, 10.0f * SCENE_DEPTH
+    );
+    // static viewpoint - top view
+    const glm::mat4 orthoViewMatrix = glm::lookAt(
+        glm::vec3(0.0f, 0.0f, 1.0f),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
+
+    // setup camera & projection transform
+    glm::mat4 viewMatrix = orthoViewMatrix;
+    glm::mat4 projectionMatrix = orthoProjectionMatrix;
+    for (Object o : objects)
+    {
+        o.renderObject(sc, viewMatrix, orthoProjectionMatrix);
+    }
+    //--------------------------------------------------
+    glutSwapBuffers();
+}
+
 
 int main(int argc, char** argv) {
   glutInit(&argc, argv);
@@ -131,14 +156,26 @@ int main(int argc, char** argv) {
   glutInitWindowSize(WIN_WIDTH, WIN_HEIGHT);
   glutCreateWindow(WIN_TITLE);
 
-  glutDisplayFunc(draw);
+  initializeShaderPrograms(sc);
+
+  
+
+  glutDisplayFunc(onDisplay);
 
   if(!pgr::initialize(pgr::OGL_VER_MAJOR, pgr::OGL_VER_MINOR))
     pgr::dieWithError("pgr init failed, required OpenGL not supported?");
 
-  init();
+  const char* cube = "Data/ghoul.obj";
+  struct Transform t = { glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1) };
+  Object obj(t, cube, sc);
 
-  std::cout << "Hello triangle!" << std::endl;
+
+  objects.push_back(obj);
+
+
+  //init();
+
+  
 
   glutMainLoop();
   return 0;
