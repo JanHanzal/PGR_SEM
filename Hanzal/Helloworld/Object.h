@@ -17,7 +17,7 @@ class Object
     MeshGeometry* mesh = NULL;
 
   public:
-    Object(Transform _transform, const char* mesh_file_location, SCommonShaderProgram& shader)
+    Object(Transform _transform, const char* mesh_file_location, SCommonShaderProgram& shader): transform(_transform)
     {
         if (!loadSingleMesh(mesh_file_location, shader, &mesh))
             std::cout << "ERROR: Failed to load mesh: " << mesh_file_location << std::endl;

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Mesh.h"
+#include "pgr.h"
 
 bool loadSingleMesh(const std::string& fileName, SCommonShaderProgram& shader, MeshGeometry** geometry) {
     Assimp::Importer importer;
