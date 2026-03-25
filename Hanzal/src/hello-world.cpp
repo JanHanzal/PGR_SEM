@@ -12,11 +12,12 @@
 
 #define SCENE_WIDTH  1.0f
 #define SCENE_HEIGHT 1.0f
-#define SCENE_DEPTH  1.0f
+#define NEAR  0.01f
+#define FAR  50.0f
 
 const int WIN_WIDTH = 512;
 const int WIN_HEIGHT = 512;
-const char * WIN_TITLE = "Hello World";
+const char * WIN_TITLE = "Hanzal Semestral Assignment";
 
 std::vector<Object*> objects;
 SCommonShaderProgram sc;
@@ -38,7 +39,7 @@ void onDisplay(void)
     const glm::mat4 orthoProjectionMatrix = glm::ortho(
         -SCENE_WIDTH, SCENE_WIDTH,
         -SCENE_HEIGHT, SCENE_HEIGHT,
-        -10.0f * SCENE_DEPTH, 50.0f * SCENE_DEPTH
+         NEAR, FAR
     );
     const glm::mat4 orthoViewMatrix = glm::lookAt(
         glm::vec3(0.0f, 0.0f, 2.0f),
