@@ -75,7 +75,7 @@ class Object
 
 
 
-class Planet : Object
+class Planet : public Object
 {
   private:
     float mass;
@@ -88,8 +88,9 @@ class Planet : Object
             mass(_mass), 
             orbitPlanet(_orbitPlanet)
     {
-
-
+        if(_orbitPlanet != nullptr)
+            direction = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), orbitPlanet->getPosition() - transform.position);
+        direction = glm::normalize(direction) * 5.0f;
     };
 
     void Update(float timeDelta)

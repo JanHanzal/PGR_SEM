@@ -7,7 +7,7 @@
 #define SCENE_WIDTH  1.0f
 #define SCENE_HEIGHT 1.0f
 #define NEAR  0.01f
-#define FAR  50.0f
+#define FAR  200.0f
 
 #define FPS 60
 
@@ -15,9 +15,9 @@ const int WIN_WIDTH = 800;
 const int WIN_HEIGHT = 800;
 const char * WIN_TITLE = "Hanzal Semestral Assignment";
 
-float elapsedTime = 0.001f * (float)glutGet(GLUT_ELAPSED_TIME);
+float elapsedTime = 0.0f;
 
-std::vector<Object*> objects;
+std::vector<Planet*> objects;
 SCommonShaderProgram sc;
 Camera *camera;
 
@@ -30,7 +30,7 @@ void InitApplication()
     glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
     
     Transform t = {
-        glm::vec3(0.0f, 0.0f, 5.0f),
+        glm::vec3(0.0f, 0.0f, 130.0f),
         glm::vec3(0.0, 0.0f, 0.0f),
         glm::vec3(1.0, 1.0f, 1.0f),
     };
@@ -45,7 +45,7 @@ void onDisplay(void)
 
     //-------------------------------------------------
     ViewProjectionMatrix VP = camera->getVPMatrixes();
-    for (Object* o : objects)
+    for (Planet* o : objects)
     {
         o->renderObject(sc, VP.viewMatrix, VP.projectionMatrix);
     }
@@ -55,13 +55,13 @@ void onDisplay(void)
 
 void updateWorld(float deltaTime)
 {
-    for (Object* o : objects)
+    for (Planet* o : objects)
         o->Update(deltaTime);
 }
 
 void lateUpdateWorld(float deltaTime)
 {
-    camera->changeCenterPoint(objects[0]->getPosition());
+   //camera->changeCenterPoint(objects[0]->getPosition());
 }
 
 
@@ -111,18 +111,17 @@ int main(int argc, char** argv) {
   struct Transform t = { 
       glm::vec3(0.0f, 0.0f, 0.0f), 
       glm::vec3(0.0f, 0.0f, 0.0f), 
-      glm::vec3(0.5f, 0.5f, 0.5f)
-  };
-  const char* Cube = "Data/Test.obj";
-  struct Transform t2 = {
-      glm::vec3(0.0f, 0.0f, -3.0f),
-      glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(1.0f, 1.0f, 1.0f)
   };
+  struct Transform t2 = {
+      glm::vec3(70.0f, 0.0f, 0.0f),
+      glm::vec3(0.0f, 0.0f, 0.0f),
+      glm::vec3(3.0f, 3.0f, 3.0f)
+  };
 
 
-  Object* obj = new Object(t, sphere, sc);
-  Object* obj2 = new Object(t2, Cube, sc);
+  Planet* obj = new Planet(t, sphere, sc, 1000.0f, nullptr);
+  Planet* obj2 = new Planet(t2, sphere, sc, 100.0f, obj);
   objects.push_back(obj);
   objects.push_back(obj2);
 
