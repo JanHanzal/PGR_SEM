@@ -30,7 +30,7 @@ void InitApplication()
     glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
     
     Transform t = {
-        glm::vec3(0.0f, 0.0f, 130.0f),
+        glm::vec3(40.0f, -40.0f, 10.0f),
         glm::vec3(0.0, 0.0f, 0.0f),
         glm::vec3(1.0, 1.0f, 1.0f),
     };
@@ -43,13 +43,12 @@ void onDisplay(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //-------------------------------------------------
     ViewProjectionMatrix VP = camera->getVPMatrixes();
     for (Planet* o : objects)
     {
         o->renderObject(sc, VP.viewMatrix, VP.projectionMatrix);
     }
-    //--------------------------------------------------
+    
     glutSwapBuffers();
 }
 
@@ -70,6 +69,7 @@ void onReshape(int width, int height)
     camera->reshapeWindow(width, height);
     glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 }
+
 void timerCallback(int) 
 {
     float currentTime = 0.001f * (float)glutGet(GLUT_ELAPSED_TIME);
@@ -85,6 +85,21 @@ void timerCallback(int)
 }
 
 
+void keyboardCallback(unsigned char keyPressed, int mouseX, int mouseY)
+{
+    switch (keyPressed)
+    {
+    case 27:
+        glutLeaveMainLoop();
+        break;
+
+    case 'c':
+        camera->changeCameraType();
+    default:
+        break;
+    }
+}
+
 
 int main(int argc, char** argv) {
   glutInit(&argc, argv);
@@ -99,6 +114,7 @@ int main(int argc, char** argv) {
   glutDisplayFunc(onDisplay);
   glutTimerFunc(1000/FPS, timerCallback, 0);
   glutReshapeFunc(onReshape);
+  glutKeyboardFunc(keyboardCallback);
 
 
   if(!pgr::initialize(pgr::OGL_VER_MAJOR, pgr::OGL_VER_MINOR))
@@ -111,12 +127,12 @@ int main(int argc, char** argv) {
   struct Transform t = { 
       glm::vec3(0.0f, 0.0f, 0.0f), 
       glm::vec3(0.0f, 0.0f, 0.0f), 
-      glm::vec3(1.0f, 1.0f, 1.0f)
+      glm::vec3(2.0f, 2.0f, 2.0f)
   };
   struct Transform t2 = {
-      glm::vec3(70.0f, 0.0f, 0.0f),
+      glm::vec3(50.0f, 0.0f, 0.0f),
       glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(3.0f, 3.0f, 3.0f)
+      glm::vec3(1.0f, 1.0f, 1.0f)
   };
 
 

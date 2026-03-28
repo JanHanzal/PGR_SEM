@@ -24,11 +24,11 @@ class Object
         CHECK_GL_ERROR();
     };
 
-    ~Object()
+    virtual ~Object()
     {
         cleanupGeometry(mesh);
     }
-    void Update(float deltaTime)
+    virtual void Update(float deltaTime)
     {
         glm::vec3 motion = direction * deltaTime;
         Move(motion);
@@ -80,6 +80,7 @@ class Planet : public Object
   private:
     float mass;
     Planet* orbitPlanet = nullptr;
+    float speed = 5.0f;
 
 
   public:
@@ -89,8 +90,8 @@ class Planet : public Object
             orbitPlanet(_orbitPlanet)
     {
         if(_orbitPlanet != nullptr)
-            direction = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), orbitPlanet->getPosition() - transform.position);
-        direction = glm::normalize(direction) * 5.0f;
+            direction = glm::cross(glm::vec3(WORLD_UP_VECTOR), orbitPlanet->getPosition() - transform.position);
+        direction = glm::normalize(direction) * speed;
     };
 
     void Update(float timeDelta)

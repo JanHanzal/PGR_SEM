@@ -3,9 +3,7 @@
 #ifndef __PGR_SEM_H
 #define __PGR_SEM_H
 
-#define SCENE_WIDTH 1.0f
-#define SCENE_HEIGHT 1.0f
-
+#define WORLD_UP_VECTOR glm::vec3(0.0f, 0.0f, 1.0f)
 
 struct Transform
 {
@@ -37,7 +35,7 @@ class Camera
         ViewProjectionMatrix vpMatrix;
         
         glm::vec3 center = { 0.0f, 0.0f, 0.0f };
-        glm::vec3 upVector = { 1.0f, 0.0f, 0.0f };
+        glm::vec3 upVector = { 0.0f, 0.0f, 1.0f };
 
 
         void updateCameraMatrixes()
@@ -45,8 +43,8 @@ class Camera
             if (cameraType == ORTHO)
             {
                 vpMatrix.projectionMatrix = glm::ortho(
-                    -SCENE_WIDTH*aspect, SCENE_WIDTH*aspect,
-                    -SCENE_HEIGHT*aspect, SCENE_HEIGHT*aspect,
+                    -width/2, width/2,
+                    -heigth/2, heigth/2,
                     nearPlane, farPlane
                 );
             }
@@ -62,11 +60,20 @@ class Camera
             );
         }
         
+        void changeVectors()
+        {
+            const glm::vec3 forwardVector = glm::normalize(center - transform.position);
+
+            glm::vec3 right = glm::normalize(glm::cross(forwardVector, WORLD_UP_VECTOR));
+            upVector = glm::normalize(glm::cross(right, forwardVector));
+        }
+
     public:
         Camera(Transform _transform, float _width, float _heigth, float _near, float _far) : 
         transform(_transform), width(_width), heigth(_heigth), nearPlane(_near), farPlane(_far)
         {
             aspect = width / heigth;
+            changeVectors();
         }
 
         void reshapeWindow(float _width, float _height)
@@ -74,8 +81,11 @@ class Camera
             width = _width;
             heigth = _height;
             aspect = width / heigth;
+        }
 
-            updateCameraMatrixes();
+        void changeCameraType()
+        {
+            cameraType = static_cast<Camera::CameraType>((cameraType + 1) % 2);
         }
 
         void changeCameraType(CameraType _cameraType)
@@ -84,12 +94,12 @@ class Camera
                 return;
             
             cameraType = _cameraType;
-            updateCameraMatrixes();
         }
     
         void changeCenterPoint(glm::vec3 newCenter)
         {
             center = newCenter;
+            upVector = glm::normalize(glm::cross(center - transform.position, glm::vec3(0.0f, 1.0f, 0.0f)));
         }
 
 
