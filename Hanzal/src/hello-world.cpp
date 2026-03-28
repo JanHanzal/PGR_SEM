@@ -1,9 +1,3 @@
-/**
- * \file hello-world.cpp
- * \brief Your first OpenGL application.
- * \author Tomas Barak
- */
-
 #include "pgr.h"
 #include "Object.h"
 #include "Mesh.h"
@@ -15,19 +9,33 @@
 #define NEAR  0.01f
 #define FAR  50.0f
 
-const int WIN_WIDTH = 512;
-const int WIN_HEIGHT = 512;
+#define FPS 60
+
+const int WIN_WIDTH = 800;
+const int WIN_HEIGHT = 800;
 const char * WIN_TITLE = "Hanzal Semestral Assignment";
+
+float elapsedTime = 0.001f * (float)glutGet(GLUT_ELAPSED_TIME);
 
 std::vector<Object*> objects;
 SCommonShaderProgram sc;
-Camera camera;
+Camera *camera;
 
-void start()
+
+
+void InitApplication()
 {
     glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+    
+    Transform t = {
+        glm::vec3(0.0f, 0.0f, 5.0f),
+        glm::vec3(0.0, 0.0f, 0.0f),
+        glm::vec3(1.0, 1.0f, 1.0f),
+    };
+    camera = new Camera(t, WIN_WIDTH, WIN_HEIGHT, NEAR, FAR);
+    camera->changeCameraType(Camera::CameraType::PERSPECTIVE);
 }
 
 
@@ -36,27 +44,46 @@ void onDisplay(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //-------------------------------------------------
-    const glm::mat4 orthoProjectionMatrix = glm::ortho(
-        -SCENE_WIDTH, SCENE_WIDTH,
-        -SCENE_HEIGHT, SCENE_HEIGHT,
-         NEAR, FAR
-    );
-    const glm::mat4 orthoViewMatrix = glm::lookAt(
-        glm::vec3(0.0f, 0.0f, 2.0f),
-        glm::vec3(objects[0]->getPosition()),
-        glm::vec3(0.0f, 1.0f, 0.0f)
-    );
-
-    // setup camera & projection transform
-    glm::mat4 viewMatrix = orthoViewMatrix;
-    glm::mat4 projectionMatrix = orthoProjectionMatrix;
+    ViewProjectionMatrix VP = camera->getVPMatrixes();
     for (Object* o : objects)
     {
-        o->renderObject(sc, viewMatrix, projectionMatrix);
+        o->renderObject(sc, VP.viewMatrix, VP.projectionMatrix);
     }
     //--------------------------------------------------
     glutSwapBuffers();
 }
+
+void updateWorld(float deltaTime)
+{
+    for (Object* o : objects)
+        o->Update(deltaTime);
+}
+
+void lateUpdateWorld(float deltaTime)
+{
+    camera->changeCenterPoint(objects[0]->getPosition());
+}
+
+
+void onReshape(int width, int height)
+{
+    camera->reshapeWindow(width, height);
+    glViewport(0, 0, (GLsizei)width, (GLsizei)height);
+}
+void timerCallback(int) 
+{
+    float currentTime = 0.001f * (float)glutGet(GLUT_ELAPSED_TIME);
+    float deltaTime = currentTime - elapsedTime;
+    elapsedTime = currentTime;
+    
+    
+    updateWorld(deltaTime);
+    //lateUpdateWorld(deltaTime);
+
+    glutTimerFunc(1000/FPS, timerCallback, 0);
+    glutPostRedisplay();
+}
+
 
 
 int main(int argc, char** argv) {
@@ -67,10 +94,12 @@ int main(int argc, char** argv) {
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
   glutInitWindowSize(WIN_WIDTH, WIN_HEIGHT);
   glutCreateWindow(WIN_TITLE);
-
   
 
   glutDisplayFunc(onDisplay);
+  glutTimerFunc(1000/FPS, timerCallback, 0);
+  glutReshapeFunc(onReshape);
+
 
   if(!pgr::initialize(pgr::OGL_VER_MAJOR, pgr::OGL_VER_MINOR))
     pgr::dieWithError("pgr init failed, required OpenGL not supported?");
@@ -78,17 +107,26 @@ int main(int argc, char** argv) {
 
   initializeShaderPrograms(sc);
 
-  const char* cube = "Data/ghoul.obj";
+  const char* sphere = "Data/Sphere.obj";
   struct Transform t = { 
       glm::vec3(0.0f, 0.0f, 0.0f), 
       glm::vec3(0.0f, 0.0f, 0.0f), 
       glm::vec3(0.5f, 0.5f, 0.5f)
   };
+  const char* Cube = "Data/Test.obj";
+  struct Transform t2 = {
+      glm::vec3(0.0f, 0.0f, -3.0f),
+      glm::vec3(0.0f, 0.0f, 0.0f),
+      glm::vec3(1.0f, 1.0f, 1.0f)
+  };
 
-  Object* obj = new Object(t, cube, sc);
+
+  Object* obj = new Object(t, sphere, sc);
+  Object* obj2 = new Object(t2, Cube, sc);
   objects.push_back(obj);
+  objects.push_back(obj2);
 
-  start();
+  InitApplication();
 
   glutMainLoop();
   return 0;

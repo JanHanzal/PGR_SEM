@@ -32,13 +32,19 @@ class Object
     {
         glm::vec3 motion = direction * deltaTime;
         Move(motion);
+        transform.rotation.z += 30.0f * deltaTime;
     }
 
     void Move(glm::vec3 motion)
     {
         transform.position += motion;
+
     }
 
+    void Rotate(glm::vec3)
+    {
+
+    }
 
     glm::vec3 getPosition()
     {
@@ -48,9 +54,12 @@ class Object
     void renderObject(SCommonShaderProgram& shaderProgram, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
     {
         glUseProgram(shaderProgram.program);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
         glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), transform.position);
         modelMatrix = glm::scale(modelMatrix, glm::vec3(transform.scale));
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), { 0.0f, 0.0f, 1.0f});
 
         setTransformUniforms(&shaderProgram, modelMatrix, viewMatrix, projectionMatrix);
 
@@ -100,6 +109,7 @@ class Planet : Object
         
         direction += accelerationVector * timeDelta;
         Move(direction * timeDelta);
+
     }
 
     float getAcceleration(const int mass, const float radius)
