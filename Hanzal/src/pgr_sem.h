@@ -4,6 +4,7 @@
 #define __PGR_SEM_H
 
 #define WORLD_UP_VECTOR glm::vec3(0.0f, 0.0f, 1.0f)
+#define CAMERA_ELEVATION_MAX 45
 
 struct Transform
 {
@@ -23,6 +24,8 @@ class Camera
 {
     public:
         enum CameraType { ORTHO, PERSPECTIVE };
+        float sensitivity = 0.05f;
+        float speed = 3.0f;
         
     private:
         Transform transform;
@@ -103,34 +106,47 @@ class Camera
         }
 
 
-        void rotateCamera(float yaw, float pitch)
+        void rotateCamera(const float yaw, const float pitch)
         {
-            transform.rotation.x += yaw;
-            transform.rotation.z += pitch;
-
-            glm::vec3 rotationAxis = glm::cross(upVector, (transform.position - center));
-            glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(transform.rotation.z), rotationAxis);
+            transform.rotation.x += sensitivity * yaw;
             
-            center = transform.position + glm::vec3(rotationMatrix * glm::vec4(center - transform.position, 0.0f));
-            upVector = glm::vec3(rotationMatrix * glm::vec4(upVector, 0.0f));
+            if (transform.rotation.x > 360.0f)
+                transform.rotation.x -= 360.0f;
+            else if (transform.rotation.x < 0.0f)
+                transform.rotation.x += 360.0f;
+
+            const float theta = sensitivity * pitch;
+            if(fabs(transform.rotation.z + theta) < CAMERA_ELEVATION_MAX)
+                transform.rotation.z += theta;
         }
 
-        void Move(glm::vec3 motion)
+        void Move(glm::vec2 motion, float deltaTime)
         {
-            transform.position += motion;
+            glm::vec3 direction = glm::normalize(center - transform.position);
+            glm::vec3 right = glm::normalize(glm::cross(direction, upVector));
+            glm::vec3 _motion = (direction * motion.x) + (right * motion.y);
+
+            transform.position += _motion * deltaTime * speed;
         }
 
         void Update(float timeDelta)
-        {
-            glm::vec3 motion = glm::normalize(center - transform.position) * timeDelta;
-            Move(motion);
+        {   
+            glm::vec3 front = 
+            { 
+                cos(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.z)), 
+                sin(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.z)),
+                sin(glm::radians(transform.rotation.z)) 
+            };
+
+            center = transform.position + glm::normalize(front);
+            changeVectors();
+
             updateCameraMatrixes();
         }
 
 
         ViewProjectionMatrix getVPMatrixes()
         {
-            updateCameraMatrixes();
             return vpMatrix;
         }
 };
