@@ -13,7 +13,7 @@ class Object
 {
   protected:
     Transform transform;
-    glm::vec3 direction;
+    glm::vec3 velocity;
     MeshGeometry* mesh = NULL;
 
   public:
@@ -30,7 +30,7 @@ class Object
     }
     virtual void Update(float deltaTime)
     {
-        glm::vec3 motion = direction * deltaTime;
+        glm::vec3 motion = velocity * deltaTime;
         Move(motion);
         transform.rotation.z += 30.0f * deltaTime;
     }
@@ -41,9 +41,9 @@ class Object
 
     }
 
-    void Rotate(glm::vec3)
+    void Rotate(glm::vec3 rotation)
     {
-
+        transform.rotation += rotation;
     }
 
     glm::vec3 getPosition()
@@ -54,14 +54,30 @@ class Object
     void renderObject(SCommonShaderProgram& shaderProgram, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
     {
         glUseProgram(shaderProgram.program);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        //glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
         glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), transform.position);
         modelMatrix = glm::scale(modelMatrix, glm::vec3(transform.scale));
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.x), { 1.0f, 0.0f, 0.0f }); 
         modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), { 0.0f, 0.0f, 1.0f});
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), { 0.0f, 1.0f, 0.0f });
 
-        setTransformUniforms(&shaderProgram, modelMatrix, viewMatrix, projectionMatrix);
+        setTransformUniforms(
+            shaderProgram, 
+            modelMatrix, 
+            viewMatrix, 
+            projectionMatrix
+        );
+
+        setMaterialUniforms(
+            shaderProgram,
+            mesh->ambient,
+            mesh->diffuse,
+            mesh->specular,
+            mesh->shininess,
+            mesh->texture
+        );
 
         glBindVertexArray(mesh->vertexArrayObject);
         glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_INT, 0);
@@ -90,15 +106,19 @@ class Planet : public Object
             orbitPlanet(_orbitPlanet)
     {
         if(_orbitPlanet != nullptr)
-            direction = glm::cross(glm::vec3(WORLD_UP_VECTOR), orbitPlanet->getPosition() - transform.position);
-        direction = glm::normalize(direction) * speed;
+            velocity = glm::cross(glm::vec3(WORLD_UP_VECTOR), orbitPlanet->getPosition() - transform.position);
+        velocity = glm::normalize(velocity) * speed;
     };
 
     void Update(float timeDelta)
     {
+        glm::vec3 rotationVector = glm::vec3(0.0f, 30.0f, 0.0f);
+        Rotate(rotationVector * timeDelta);
+
         if (orbitPlanet == nullptr) 
             return;
       
+
         glm::vec3 dir = orbitPlanet->getPosition() - transform.position;
         float radius = glm::length(dir);
 
@@ -109,9 +129,9 @@ class Planet : public Object
 
         glm::vec3 accelerationVector = glm::normalize(dir) * acceleration;
         
-        direction += accelerationVector * timeDelta;
-        Move(direction * timeDelta);
+        velocity += accelerationVector * timeDelta;
 
+        Move(velocity * timeDelta);  
     }
 
     float getAcceleration(const int mass, const float radius)
@@ -124,7 +144,6 @@ class Planet : public Object
     {
         return mass;
     }
-    
 };
 
 

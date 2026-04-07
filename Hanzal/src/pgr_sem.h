@@ -6,6 +6,10 @@
 #define WORLD_UP_VECTOR glm::vec3(0.0f, 0.0f, 1.0f)
 #define CAMERA_ELEVATION_MAX 45
 
+#define PHI transform.rotation.x
+#define THETA transform.rotation.z
+
+
 struct Transform
 {
     glm::vec3 position;
@@ -25,7 +29,7 @@ class Camera
     public:
         enum CameraType { ORTHO, PERSPECTIVE };
         float sensitivity = 0.05f;
-        float speed = 3.0f;
+        float speed = 10.0f;
         
     private:
         Transform transform;
@@ -108,16 +112,16 @@ class Camera
 
         void rotateCamera(const float yaw, const float pitch)
         {
-            transform.rotation.x += sensitivity * yaw;
+            PHI += sensitivity * yaw;
             
-            if (transform.rotation.x > 360.0f)
-                transform.rotation.x -= 360.0f;
-            else if (transform.rotation.x < 0.0f)
-                transform.rotation.x += 360.0f;
+            if (PHI > 360.0f)
+                PHI -= 360.0f;
+            else if (PHI < 0.0f)
+                PHI += 360.0f;
 
-            const float theta = sensitivity * pitch;
-            if(fabs(transform.rotation.z + theta) < CAMERA_ELEVATION_MAX)
-                transform.rotation.z += theta;
+            const float theta_delta = sensitivity * pitch;
+            if(fabs(transform.rotation.z + theta_delta) < CAMERA_ELEVATION_MAX)
+                THETA += theta_delta;
         }
 
         void Move(glm::vec2 motion, float deltaTime)
@@ -131,11 +135,12 @@ class Camera
 
         void Update(float timeDelta)
         {   
+            //Rotation.x = phi, Rotation.y = theta
             glm::vec3 front = 
             { 
-                cos(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.z)), 
-                sin(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.z)),
-                sin(glm::radians(transform.rotation.z)) 
+                cos(glm::radians(PHI)) * cos(glm::radians(THETA)), 
+                sin(glm::radians(PHI)) * cos(glm::radians(THETA)),
+                sin(glm::radians(THETA)) 
             };
 
             center = transform.position + glm::normalize(front);

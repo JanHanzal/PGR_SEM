@@ -89,6 +89,48 @@ bool loadSingleMesh(const std::string& fileName, SCommonShaderProgram& shader, M
     if ((retValue = aiGetMaterialColor(mat, AI_MATKEY_COLOR_DIFFUSE, &color)) != AI_SUCCESS)
         color = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
 
+    (*geometry)->diffuse = glm::vec3(color.r, color.g, color.b);
+
+    if ((retValue = aiGetMaterialColor(mat, AI_MATKEY_COLOR_AMBIENT, &color)) != AI_SUCCESS)
+        color = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
+    (*geometry)->ambient = glm::vec3(color.r, color.g, color.b);
+
+    if ((retValue = aiGetMaterialColor(mat, AI_MATKEY_COLOR_SPECULAR, &color)) != AI_SUCCESS)
+        color = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
+    (*geometry)->specular = glm::vec3(color.r, color.g, color.b);
+
+    ai_real shininess, strength;
+    unsigned int max;	// changed: to unsigned
+
+    max = 1;
+    if ((retValue = aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS, &shininess, &max)) != AI_SUCCESS)
+        shininess = 1.0f;
+    max = 1;
+    if ((retValue = aiGetMaterialFloatArray(mat, AI_MATKEY_SHININESS_STRENGTH, &strength, &max)) != AI_SUCCESS)
+        strength = 1.0f;
+    (*geometry)->shininess = shininess * strength;
+
+    (*geometry)->texture = 0;
+
+    // load texture image
+    if (mat->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
+        // get texture name 
+        aiString path; // filename
+
+        aiReturn texFound = mat->GetTexture(aiTextureType_DIFFUSE, 0, &path);
+        std::string textureName = path.data;
+
+        size_t found = fileName.find_last_of("/\\");
+        // insert correct texture file path 
+        if (found != std::string::npos) { // not found
+            //subMesh_p->textureName.insert(0, "/");
+            textureName.insert(0, fileName.substr(0, found + 1));
+        }
+
+        std::cout << "Loading texture file: " << textureName << std::endl;
+        (*geometry)->texture = pgr::createTexture(textureName);
+    }
+    CHECK_GL_ERROR();
 
     glGenVertexArrays(1, &((*geometry)->vertexArrayObject));
     glBindVertexArray((*geometry)->vertexArrayObject);
@@ -99,16 +141,19 @@ bool loadSingleMesh(const std::string& fileName, SCommonShaderProgram& shader, M
     glEnableVertexAttribArray(shader.posLocation);
     glVertexAttribPointer(shader.posLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glDisableVertexAttribArray(shader.colorLocation);
-    // following line is problematic on AMD/ATI graphic cards
-    // -> if you see black screen (no objects at all) than try to set color manually in vertex shader to see at least something
-    glVertexAttrib3f(shader.colorLocation, color.r, color.g, color.b);
+    glEnableVertexAttribArray(shader.normalLocation);
+    glVertexAttribPointer(shader.normalLocation, 3, GL_FLOAT, GL_FALSE, 0, (void*)(3 * sizeof(float) * mesh->mNumVertices));
+       
+
+    glEnableVertexAttribArray(shader.texCoordLocation);
+    glVertexAttribPointer(shader.texCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, (void*)(6 * sizeof(float) * mesh->mNumVertices));
     CHECK_GL_ERROR();
 
     glBindVertexArray(0);
 
     (*geometry)->numTriangles = mesh->mNumFaces;
 
+    std::cout << "Loaded: " << fileName << std::endl;
     return true;
 }
 

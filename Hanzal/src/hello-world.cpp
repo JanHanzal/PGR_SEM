@@ -21,7 +21,6 @@ std::vector<Planet*> objects;
 SCommonShaderProgram sc;
 Camera *camera;
 
-
 enum Controls
 {
     W,
@@ -38,7 +37,7 @@ void InitApplication()
     for (bool& b : _input)
         b = false;
 
-    glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
     
@@ -200,26 +199,38 @@ int main(int argc, char** argv) {
   if(!pgr::initialize(pgr::OGL_VER_MAJOR, pgr::OGL_VER_MINOR))
     pgr::dieWithError("pgr init failed, required OpenGL not supported?");
 
-
   initializeShaderPrograms(sc);
 
+  //======================================
+  //Init scene----------------------------
   const char* sphere = "Data/Sphere.obj";
+  const char* earth = "Data/Earth.obj";
   struct Transform t = { 
       glm::vec3(0.0f, 0.0f, 0.0f), 
-      glm::vec3(0.0f, 0.0f, 0.0f), 
+      glm::vec3(90.0f, 0.0f, 24.0f), 
       glm::vec3(2.0f, 2.0f, 2.0f)
   };
   struct Transform t2 = {
-      glm::vec3(50.0f, 0.0f, 0.0f),
+      glm::vec3(50.0f, 0.0f, 2.0f),
       glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(1.0f, 1.0f, 1.0f)
+      glm::vec3(0.5f, 0.5f, 0.5f)
   };
 
+  struct Transform t3 = {
+      glm::vec3(-100.0f, 0.0f, -5.0f),
+      glm::vec3(0.0f, 0.0f, 0.0f),
+      glm::vec3(0.5f, 0.5f, 0.5f)
+  };
 
-  Planet* obj = new Planet(t, sphere, sc, 1000.0f, nullptr);
-  Planet* obj2 = new Planet(t2, sphere, sc, 100.0f, obj);
+  Planet* obj = new Planet(t, earth, sc, 1000.0f, nullptr);
+  Planet* obj2 = new Planet(t2, earth, sc, 100.0f, obj);
+  Planet* obj3 = new Planet(t3, earth, sc, 1000.0f, obj);
+
   objects.push_back(obj);
   objects.push_back(obj2);
+  objects.push_back(obj3);
+  //Init scene----------------------------
+  //======================================
 
   InitApplication();
 

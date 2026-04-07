@@ -39,4 +39,8 @@
       <Filter>Hlavičkové soubory</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\defaultShader.frag" />
+    <None Include="Shaders\defaultShader.vert" />
+  </ItemGroup>
 </Project>
