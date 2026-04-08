@@ -19,12 +19,12 @@ uniform sampler2D texSampler;;
 uniform Material material;
 uniform mat4 Vmatrix;
 
-// Vstupy z vertex shaderu (interpolované pro každý pixel)
 smooth in vec3 vertexPosition_v;
 smooth in vec3 vertexNormal_v;
 smooth in vec2 texCoord_v;
 
-// Výstupní barva fragmentu (pixelu)
+uniform Light light;
+
 out vec4 fragColor;
 
 // hardcoded lights
@@ -34,7 +34,7 @@ float sunSpeed = 0.5f;
 void setupLights() {
   // SUN
   sun.ambient  = vec3(1.0);
-  sun.diffuse  = vec3(1.0, 1.0, 1.0f);
+  sun.diffuse  = vec3(1.0);
   sun.specular = vec3(0.0);
   sun.position = vec3(Vmatrix * vec4(0.0, 0.0, 1.0,0.0));
 }

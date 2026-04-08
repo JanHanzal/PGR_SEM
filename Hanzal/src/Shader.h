@@ -3,15 +3,58 @@
 #ifndef __SHADER_H
 #define __SHADER_H
 
+#define VERT_SHADER "Shaders/defaultShader.vert"
+#define FRAG_SHADER "Shaders/defaultShader.frag"
+
+struct DirectionalLight
+{
+	glm::vec3	  position;
+	glm::vec3     ambient;
+	glm::vec3     diffuse;
+	glm::vec3     specular;
+};
+
+struct SpotLight
+{
+	glm::vec3	  position;
+	glm::vec3	  direction;
+
+	glm::vec3     ambient;
+	glm::vec3     diffuse;
+	glm::vec3     specular;
+
+	float         cosCutOff;
+	float		  exponent;
+};
+
+struct PointLight
+{
+	glm::vec3	  position;
+	glm::vec3     ambient;
+	glm::vec3     diffuse;
+	glm::vec3     specular;
+
+	float		  radius;
+	bool		  quadratic; //Linear if false
+};
+
+struct Material
+{
+	glm::vec3     ambient;
+	glm::vec3     diffuse;
+	glm::vec3     specular;
+	float         shininess;
+	GLuint        texture;
+};
+
 typedef struct _commonShaderProgram {
-	// identifier for the shader program
 	GLuint program;          // = 0;
-	// vertex attributes locations
+	
 	GLint posLocation;       // = -1;
 	GLint colorLocation;     // = -1;
 	GLint normalLocation;    // = -1;
 	GLint texCoordLocation;  // = -1;
-	// uniforms locations
+	
 	GLint PVMmatrixLocation;    // = -1;
 	GLint VmatrixLocation;      // = -1;  view/camera matrix
 	GLint MmatrixLocation;      // = -1;  modeling matrix
@@ -25,13 +68,15 @@ typedef struct _commonShaderProgram {
 	// texture
 	GLint useTextureLocation; // = -1; 
 	GLint texSamplerLocation; // = -1;
-	// spotlight related uniforms
-} SCommonShaderProgram;
+	
+	//Light
+	
 
+} SCommonShaderProgram;
 
 void setTransformUniforms(SCommonShaderProgram& shaderProgram, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
 
-void setMaterialUniforms(SCommonShaderProgram& shaderProgram, const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular, float shininess, GLuint texture);
+void setMaterialUniforms(SCommonShaderProgram& shaderProgram, const Material material);
 
 void initializeShaderPrograms(SCommonShaderProgram& shaderProgram);
 

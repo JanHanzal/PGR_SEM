@@ -4,7 +4,7 @@
 #define __PGR_SEM_H
 
 #define WORLD_UP_VECTOR glm::vec3(0.0f, 0.0f, 1.0f)
-#define CAMERA_ELEVATION_MAX 45
+#define CAMERA_ELEVATION_MAX 90
 
 #define PHI transform.rotation.x
 #define THETA transform.rotation.z
@@ -83,6 +83,11 @@ class Camera
             changeVectors();
         }
 
+        void setPosition(glm::vec3 position)
+        {
+            transform.position = position;
+        }
+
         void reshapeWindow(float _width, float _height)
         {
             width = _width;
@@ -124,13 +129,14 @@ class Camera
                 THETA += theta_delta;
         }
 
-        void Move(glm::vec2 motion, float deltaTime)
+        void Move(glm::vec3 motion, float deltaTime)
         {
             glm::vec3 direction = glm::normalize(center - transform.position);
             glm::vec3 right = glm::normalize(glm::cross(direction, upVector));
             glm::vec3 _motion = (direction * motion.x) + (right * motion.y);
 
             transform.position += _motion * deltaTime * speed;
+            transform.position += WORLD_UP_VECTOR * motion.z * deltaTime * speed;
         }
 
         void Update(float timeDelta)
@@ -153,6 +159,11 @@ class Camera
         ViewProjectionMatrix getVPMatrixes()
         {
             return vpMatrix;
+        }
+
+        void printLocation()
+        {
+            std::cout << transform.position.x << ' ' << transform.position.y << ' ' << transform.position.z << std::endl;
         }
 };
 

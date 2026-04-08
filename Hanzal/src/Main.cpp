@@ -7,12 +7,12 @@
 #define SCENE_WIDTH  1.0f
 #define SCENE_HEIGHT 1.0f
 #define NEAR  0.01f
-#define FAR  200.0f
+#define FAR  2000.0f
 
 #define FPS 60
 
-int WIN_WIDTH = 1920;
-int WIN_HEIGHT = 1080;
+int WIN_WIDTH = 800;
+int WIN_HEIGHT = 800;
 const char * WIN_TITLE = "Hanzal Semestral Assignment";
 
 float elapsedTime = 0.0f;
@@ -27,6 +27,8 @@ enum Controls
     S,
     A,
     D,
+    E,
+    Q,
     CONTROLS_LENGTH
 };
 
@@ -42,8 +44,8 @@ void InitApplication()
     glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
     
     Transform t = {
-        glm::vec3(0.0f, -40.0f, 0.0f),
-        glm::vec3(90.0, 0.0f, 0.0f),
+        glm::vec3(100.0f, 0.0f, 20.0f),
+        glm::vec3(0.0, 0.0f, 0.0f),
         glm::vec3(1.0, 1.0f, 1.0f),
     };
     camera = new Camera(t, WIN_WIDTH, WIN_HEIGHT, NEAR, FAR);
@@ -78,6 +80,7 @@ void lateUpdateWorld(float deltaTime)
 
 void onReshape(int width, int height)
 {
+    glutReshapeWindow(width, height);
     camera->reshapeWindow(width, height);
     WIN_WIDTH = width;
     WIN_HEIGHT = height;
@@ -90,19 +93,30 @@ void timerCallback(int)
     float deltaTime = currentTime - elapsedTime;
     elapsedTime = currentTime;
     
-    glm::vec2 cameraMotion = glm::vec2(0.0f);
+    //==============================================
+    //Camera Input==================================
+    glm::vec3 cameraMotion = glm::vec3(0.0f);
 
     if (_input[W])
-        cameraMotion += glm::vec2(1.0f, 0.0f);
+        cameraMotion += glm::vec3(1.0f, 0.0f, 0.0f);
     if (_input[S])
-        cameraMotion += glm::vec2(-1.0f, 0.0f);
+        cameraMotion += glm::vec3(-1.0f, 0.0f, 0.0f);
     if (_input[D])
-        cameraMotion += glm::vec2(0.0f, 1.0f);
+        cameraMotion += glm::vec3(0.0f, 1.0f, 0.0f);
     if (_input[A])
-        cameraMotion += glm::vec2(0.0f, -1.0f);
+        cameraMotion += glm::vec3(0.0f, -1.0f, 0.0f);
+    
+    //Accent
+    if (_input[E])
+        cameraMotion += glm::vec3(0.0f, 0.0f, 1.0f);
+    //Deccent
+    if (_input[Q])
+        cameraMotion += glm::vec3(0.0f, 0.0f, -1.0f);
 
     camera->Move(cameraMotion , deltaTime);
     camera->Update(deltaTime);
+    //==============================================
+    //==============================================
 
 
     
@@ -122,9 +136,11 @@ void keyboardCallback(unsigned char keyPressed, int mouseX, int mouseY)
     case 27:
         glutLeaveMainLoop();
         break;
-
-    case 'c':
-        camera->changeCameraType();
+    case 'e':
+        _input[E] = true;
+        break;
+    case 'q':
+        _input[Q] = true;
         break;
     case 'w':
         _input[W] = true;
@@ -138,6 +154,17 @@ void keyboardCallback(unsigned char keyPressed, int mouseX, int mouseY)
     case 'd':
         _input[D] = true;
         break;
+    //===============================================
+    //Debug==========================================
+    case 'm':
+        camera->printLocation();
+        ;       break;
+    case 'c':
+        camera->setPosition(objects[2]->getPosition() + glm::vec3(0.0, 0.0, 30.0));
+        //camera->changeCameraType();
+        break;
+    //===============================================
+    //===============================================
     default:
         break;
     }
@@ -146,6 +173,13 @@ void keyboardCallback(unsigned char keyPressed, int mouseX, int mouseY)
 void keyboardUpCallback(unsigned char keyReleased, int mouseX, int mouseY) {
 
     switch (keyReleased) {
+    
+    case 'e':
+        _input[E] = false;
+        break;
+    case 'q':
+        _input[Q] = false;
+        break;
     case 'w':
         _input[W] = false;
         break;
@@ -163,10 +197,12 @@ void keyboardUpCallback(unsigned char keyReleased, int mouseX, int mouseY) {
     }
 }
 
+
 void passiveMouseMotionCallback(int mouseX, int mouseY) 
 {
     int cx = WIN_WIDTH / 2, cy = WIN_HEIGHT / 2;
-    if (mouseX == cx && mouseY == cy) return; // ignoruj warp event
+    if (mouseX == cx && mouseY == cy) 
+        return;
 
     float deltaX = -(float)(mouseX - cx);
     float deltaY = -(float)(mouseY - cy);
@@ -176,6 +212,50 @@ void passiveMouseMotionCallback(int mouseX, int mouseY)
     glutPostRedisplay();
 }
 
+void addPlanetToScene(Transform t, const char* path_to_Model, float mass)
+{
+    objects.push_back(new Planet(t, path_to_Model, sc, mass, objects));
+}
+
+
+void sceneInit()
+{
+    DirectionalLight dl = {
+        glm::vec3(0.0, 0.0, 1.0),
+        glm::vec3(1.0),
+        glm::vec3(1.0),
+        glm::vec3(0.0)
+    };
+
+    
+    const char* sphere = "Data/Sphere.obj";
+    const char* earth = "Data/Earth.obj";
+    
+    struct Transform t = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(90.0f, 0.0f, 12.0f),
+        glm::vec3(10.0f, 10.0f, 10.0f)
+    };
+
+    struct Transform t2 = {
+        glm::vec3(100.0f, 0.0f, 0.0f),
+        glm::vec3(90.0f, 0.0f, 0.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f)
+    };
+
+    struct Transform t3 = {
+        glm::vec3(200.0f, 0.0f, 0.0f),
+        glm::vec3(90.0f, 0.0f, 0.0f),
+        glm::vec3(10.0f, 10.0f, 10.0f)
+    };
+
+    Planet* p1 = new Planet(t, sphere, sc, 1000.0, objects);
+    objects.push_back(p1);
+    Planet* p2 = new Planet(t2, sphere, sc, 100.0, objects);
+    objects.push_back(p2);
+    Planet* p3 = new Planet(t3, sphere, sc, 1000.0, objects);
+    objects.push_back(p3);
+}
 
 
 int main(int argc, char** argv) {
@@ -186,54 +266,32 @@ int main(int argc, char** argv) {
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
   glutInitWindowSize(WIN_WIDTH, WIN_HEIGHT);
   glutCreateWindow(WIN_TITLE);
-  
 
+  //======================================
+  //Callbacks-----------------------------
   glutDisplayFunc(onDisplay);
-  glutTimerFunc(1000/FPS, timerCallback, 0);
+  glutTimerFunc(33, timerCallback, 0);
   glutReshapeFunc(onReshape);
   glutKeyboardFunc(keyboardCallback);
   glutKeyboardUpFunc(keyboardUpCallback);
   glutPassiveMotionFunc(passiveMouseMotionCallback);
   glutWarpPointer(WIN_WIDTH / 2, WIN_HEIGHT / 2);
+  //======================================
+  glutSetCursor(GLUT_CURSOR_NONE);
 
   if(!pgr::initialize(pgr::OGL_VER_MAJOR, pgr::OGL_VER_MINOR))
     pgr::dieWithError("pgr init failed, required OpenGL not supported?");
 
   initializeShaderPrograms(sc);
 
-  //======================================
-  //Init scene----------------------------
-  const char* sphere = "Data/Sphere.obj";
-  const char* earth = "Data/Earth.obj";
-  struct Transform t = { 
-      glm::vec3(0.0f, 0.0f, 0.0f), 
-      glm::vec3(90.0f, 0.0f, 24.0f), 
-      glm::vec3(2.0f, 2.0f, 2.0f)
-  };
-  struct Transform t2 = {
-      glm::vec3(50.0f, 0.0f, 2.0f),
-      glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(0.5f, 0.5f, 0.5f)
-  };
-
-  struct Transform t3 = {
-      glm::vec3(-100.0f, 0.0f, -5.0f),
-      glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(0.5f, 0.5f, 0.5f)
-  };
-
-  Planet* obj = new Planet(t, earth, sc, 1000.0f, nullptr);
-  Planet* obj2 = new Planet(t2, earth, sc, 100.0f, obj);
-  Planet* obj3 = new Planet(t3, earth, sc, 1000.0f, obj);
-
-  objects.push_back(obj);
-  objects.push_back(obj2);
-  objects.push_back(obj3);
-  //Init scene----------------------------
-  //======================================
+  sceneInit();
 
   InitApplication();
 
   glutMainLoop();
+
+  delete camera;
+  for (Planet* p : objects)
+      delete p;
   return 0;
 }

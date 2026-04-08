@@ -3,6 +3,7 @@
 
 Object::Object(Transform _transform, const char* mesh_file_location, SCommonShaderProgram& shader) : transform(_transform)
 {
+    tex_ = pgr::createTexture(sun);
     if (!loadSingleMesh(mesh_file_location, shader, &mesh))
         std::cout << "ERROR: Failed to load mesh: " << mesh_file_location << std::endl;
     CHECK_GL_ERROR();
@@ -54,14 +55,17 @@ void Object::renderObject(SCommonShaderProgram& shaderProgram, const glm::mat4& 
         projectionMatrix
     );
 
-    setMaterialUniforms(
-        shaderProgram,
-        mesh->ambient,
-        mesh->diffuse,
-        mesh->specular,
-        mesh->shininess,
-        mesh->texture
-    );
+    
+    Material mat = {
+       glm::vec3(1.0),
+       glm::vec3(1.0),
+       glm::vec3(0.0),
+       0.0f,
+       tex_
+    };
+
+    
+    setMaterialUniforms(shaderProgram, mat);
 
     glBindVertexArray(mesh->vertexArrayObject);
     glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_INT, 0);
@@ -70,40 +74,41 @@ void Object::renderObject(SCommonShaderProgram& shaderProgram, const glm::mat4& 
     glUseProgram(0);
 }
 
-
-
-
-Planet::Planet(Transform _transform, const char* mesh_file_location, SCommonShaderProgram& shader, float _mass, Planet* _orbitPlanet) :
-    Object(_transform, mesh_file_location, shader),
-    mass(_mass),
-    orbitPlanet(_orbitPlanet)
+MeshGeometry* Object::getMesh()
 {
-    if (_orbitPlanet != nullptr)
-        velocity = glm::cross(glm::vec3(WORLD_UP_VECTOR), orbitPlanet->getPosition() - transform.position);
-    velocity = glm::normalize(velocity) * speed;
+    return mesh;
+}
+
+
+
+Planet::Planet(Transform _transform, const char* mesh_file_location, SCommonShaderProgram& shader, float _mass, const std::vector<Planet*>& _orbitPlanet) :
+    Object(_transform, mesh_file_location, shader), mass(_mass), orbitPlanet(_orbitPlanet)
+{
+    velocity = glm::cross(glm::vec3(WORLD_UP_VECTOR), transform.position);
+    if(glm::length(velocity) > 0)
+        velocity = glm::normalize(velocity) * speed;
+}
+
+Planet:: ~Planet()
+{
+    cleanupGeometry(mesh);
 }
 
 void Planet::Update(float timeDelta)
 {
-    glm::vec3 rotationVector = glm::vec3(0.0f, 30.0f, 0.0f);
-    Rotate(rotationVector * timeDelta);
-
-    if (orbitPlanet == nullptr)
-        return;
-
-    glm::vec3 dir = orbitPlanet->getPosition() - transform.position;
-    float radius = glm::length(dir);
-
-    if (radius == 0.0f)
-        return;
-
-    float acceleration = getAcceleration(orbitPlanet->getMass(), radius);
-
-    glm::vec3 accelerationVector = glm::normalize(dir) * acceleration;
-
-    velocity += accelerationVector * timeDelta;
+    for (Planet* p : orbitPlanet)
+    {
+        glm::vec3 dir = p->getPosition() - transform.position;
+        float radius = glm::length(dir);
+        float acceleration = getAcceleration(p->getMass(), radius);
+        glm::vec3 accelerationVector = glm::normalize(dir) * acceleration;
+        velocity += accelerationVector * timeDelta;
+    }
 
     Move(velocity * timeDelta);
+
+    glm::vec3 rotationVector = glm::vec3(0.0f, 30.0f, 0.0f);
+    Rotate(rotationVector * timeDelta);
 }
 
 float Planet::getAcceleration(const int mass, const float radius)
