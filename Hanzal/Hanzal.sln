@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PGR_SEM", "src\SEM.vcxproj", "{C10318FE-3A20-46A6-8C17-FBADCD919CEA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hanzal", "src\SEM.vcxproj", "{C10318FE-3A20-46A6-8C17-FBADCD919CEA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,8 +17,8 @@ Global
 		{C10318FE-3A20-46A6-8C17-FBADCD919CEA}.Debug|x64.Build.0 = Debug|Win32
 		{C10318FE-3A20-46A6-8C17-FBADCD919CEA}.Debug|x86.ActiveCfg = Debug|Win32
 		{C10318FE-3A20-46A6-8C17-FBADCD919CEA}.Debug|x86.Build.0 = Debug|Win32
-		{C10318FE-3A20-46A6-8C17-FBADCD919CEA}.Release|x64.ActiveCfg = Release|x64
-		{C10318FE-3A20-46A6-8C17-FBADCD919CEA}.Release|x64.Build.0 = Release|x64
+		{C10318FE-3A20-46A6-8C17-FBADCD919CEA}.Release|x64.ActiveCfg = Release|Win32
+		{C10318FE-3A20-46A6-8C17-FBADCD919CEA}.Release|x64.Build.0 = Release|Win32
 		{C10318FE-3A20-46A6-8C17-FBADCD919CEA}.Release|x86.ActiveCfg = Release|Win32
 		{C10318FE-3A20-46A6-8C17-FBADCD919CEA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
