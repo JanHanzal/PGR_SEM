@@ -6,37 +6,45 @@
 #define VERT_SHADER "Shaders/defaultShader.vert"
 #define FRAG_SHADER "Shaders/defaultShader.frag"
 
-struct DirectionalLight
-{
-	glm::vec3	  position;
-	glm::vec3     ambient;
-	glm::vec3     diffuse;
-	glm::vec3     specular;
+//============================================
+struct DirectionalLight {
+	glm::vec3  position;
+
+	glm::vec3  ambient;
+	glm::vec3  diffuse;
+	glm::vec3  specular;
 };
 
-struct SpotLight
-{
-	glm::vec3	  position;
-	glm::vec3	  direction;
+struct SpotLight {
+	glm::vec3  position;
+	glm::vec3 diretion;
 
-	glm::vec3     ambient;
-	glm::vec3     diffuse;
-	glm::vec3     specular;
+	glm::vec3  ambient;
+	glm::vec3  diffuse;
+	glm::vec3  specular;
 
-	float         cosCutOff;
-	float		  exponent;
+	//SpotLight
+	float CutOff;
+	float exponent;
+
+	//PointLight params
+	float radius;
+	bool quadratic;
 };
 
-struct PointLight
-{
-	glm::vec3	  position;
-	glm::vec3     ambient;
-	glm::vec3     diffuse;
-	glm::vec3     specular;
+struct PointLight {
+	glm::vec3  position;
+	glm::vec3 diretion;
 
-	float		  radius;
-	bool		  quadratic; //Linear if false
+	glm::vec3  ambient;
+	glm::vec3  diffuse;
+	glm::vec3  specular;
+
+	//PointLight params
+	float radius;
+	bool quadratic;
 };
+//============================================
 
 struct Material
 {
@@ -65,18 +73,39 @@ typedef struct _commonShaderProgram {
 	GLint ambientLocation;    // = -1;
 	GLint specularLocation;   // = -1;
 	GLint shininessLocation;  // = -1;
+	
 	// texture
 	GLint useTextureLocation; // = -1; 
 	GLint texSamplerLocation; // = -1;
 	
-	//Light
-	
+	//Light - Directional, Spot, Point
+	GLint dl_positionLocation;
+	GLint dl_ambientLocation;
+	GLint dl_diffuseLocation; 
+	GLint dl_specularLocation;
+
+	GLint sl_positionLocation;
+	GLint sl_directionLocation;
+	GLint sl_CutOffLocation;
+	GLint sl_exponentLocation;
+	GLint sl_diffuseLocation;    
+	GLint sl_ambientLocation;    
+	GLint sl_specularLocation;   
+
+	GLint pl_positionLocation;
+	GLint pl_diffuseLocation;    
+	GLint pl_ambientLocation;    
+	GLint pl_specularLocation;   
+	GLint pl_radiusLocation;
+	GLint pl_quadraticLocation;
 
 } SCommonShaderProgram;
 
 void setTransformUniforms(SCommonShaderProgram& shaderProgram, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
 
 void setMaterialUniforms(SCommonShaderProgram& shaderProgram, const Material material);
+
+void setDirectionalLightUniforms(SCommonShaderProgram& shaderProgram, const DirectionalLight light);
 
 void initializeShaderPrograms(SCommonShaderProgram& shaderProgram);
 

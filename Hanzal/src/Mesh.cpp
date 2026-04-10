@@ -137,7 +137,7 @@ bool loadSingleMesh(const std::string& fileName, SCommonShaderProgram& shader, M
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (*geometry)->elementBufferObject); // bind our element array buffer (indices) to vao
     glBindBuffer(GL_ARRAY_BUFFER, (*geometry)->vertexBufferObject);
-    
+  
     glEnableVertexAttribArray(shader.posLocation);
     glVertexAttribPointer(shader.posLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
 

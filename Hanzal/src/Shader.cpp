@@ -38,20 +38,13 @@ void setMaterialUniforms(SCommonShaderProgram& shaderProgram, const Material mat
 	}
 }
 
-void setLightUniforms(SCommonShaderProgram& shaderProgram, const DirectionalLight dirL)
+void setDirectionalLightUniforms(SCommonShaderProgram& shaderProgram, const DirectionalLight light)
 {
-	
-};
-
-void setLightUniforms(SCommonShaderProgram& shaderProgram, SpotLight spotL)
-{
-
-};
-
-void setLightUniforms(SCommonShaderProgram& shaderProgram, const PointLight pointL)
-{
-
-};
+	glUniform3fv(shaderProgram.dl_positionLocation, 1, glm::value_ptr(light.position));
+	glUniform3fv(shaderProgram.dl_ambientLocation, 1, glm::value_ptr(light.ambient));
+	glUniform3fv(shaderProgram.dl_diffuseLocation, 1, glm::value_ptr(light.diffuse));
+	glUniform3fv(shaderProgram.dl_specularLocation, 1, glm::value_ptr(light.specular));
+}
 
 void initializeShaderPrograms(SCommonShaderProgram& shaderProgram) 
 {
@@ -78,9 +71,33 @@ void initializeShaderPrograms(SCommonShaderProgram& shaderProgram)
 	shaderProgram.diffuseLocation = glGetUniformLocation(shaderProgram.program, "material.diffuse");
 	shaderProgram.specularLocation = glGetUniformLocation(shaderProgram.program, "material.specular");
 	shaderProgram.shininessLocation = glGetUniformLocation(shaderProgram.program, "material.shininess");
+
 	// texture
 	shaderProgram.texSamplerLocation = glGetUniformLocation(shaderProgram.program, "texSampler");
 	shaderProgram.useTextureLocation = glGetUniformLocation(shaderProgram.program, "material.useTexture");
+
+	//Light - Directional, Spot, Point
+	shaderProgram.dl_positionLocation = glGetUniformLocation(shaderProgram.program, "directionalLight.position");
+	shaderProgram.dl_ambientLocation = glGetUniformLocation(shaderProgram.program, "directionalLight.ambient");
+	shaderProgram.dl_diffuseLocation = glGetUniformLocation(shaderProgram.program, "directionalLight.diffuse");
+	shaderProgram.dl_specularLocation = glGetUniformLocation(shaderProgram.program, "directionalLight.specular");
+
+	
+	shaderProgram.sl_positionLocation = glGetUniformLocation(shaderProgram.program, "spotLight.position");
+	shaderProgram.sl_directionLocation = glGetUniformLocation(shaderProgram.program, "spotLight.direction");
+	shaderProgram.sl_CutOffLocation = glGetUniformLocation(shaderProgram.program, "spotLight.cutOff");
+	shaderProgram.sl_exponentLocation = glGetUniformLocation(shaderProgram.program, "spotLight.exponent");
+	shaderProgram.sl_ambientLocation = glGetUniformLocation(shaderProgram.program, "spotLight.ambient");
+	shaderProgram.sl_diffuseLocation = glGetUniformLocation(shaderProgram.program, "spotLight.diffuse");
+	shaderProgram.sl_specularLocation = glGetUniformLocation(shaderProgram.program, "spotLight.specular");
+
+	shaderProgram.pl_positionLocation = glGetUniformLocation(shaderProgram.program, "pointLight.position");
+	shaderProgram.pl_ambientLocation = glGetUniformLocation(shaderProgram.program, "pointLight.ambient");
+	shaderProgram.pl_diffuseLocation = glGetUniformLocation(shaderProgram.program, "pointLight.diffuse");
+	shaderProgram.pl_specularLocation = glGetUniformLocation(shaderProgram.program, "pointLight.specular");
+	shaderProgram.pl_radiusLocation = glGetUniformLocation(shaderProgram.program, "pointLight.radius");
+	shaderProgram.pl_quadraticLocation = glGetUniformLocation(shaderProgram.program, "pointLight.quadratic");
+	
 }
 
 void cleanupShaderPrograms(SCommonShaderProgram& shaderProgram)

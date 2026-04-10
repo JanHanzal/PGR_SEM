@@ -11,8 +11,8 @@
 
 #define FPS 60
 
-int WIN_WIDTH = 800;
-int WIN_HEIGHT = 800;
+int WIN_WIDTH = 1920;
+int WIN_HEIGHT = 1080;
 const char * WIN_TITLE = "Hanzal Semestral Assignment";
 
 float elapsedTime = 0.0f;
@@ -220,16 +220,9 @@ void addPlanetToScene(Transform t, const char* path_to_Model, float mass)
 
 void sceneInit()
 {
-    DirectionalLight dl = {
-        glm::vec3(0.0, 0.0, 1.0),
-        glm::vec3(1.0),
-        glm::vec3(1.0),
-        glm::vec3(0.0)
-    };
-
-    
     const char* sphere = "Data/Sphere.obj";
     const char* earth = "Data/Earth.obj";
+    const char* qhoul = "Data/ghoul.obj";
     
     struct Transform t = {
         glm::vec3(0.0f, 0.0f, 0.0f),
@@ -249,7 +242,7 @@ void sceneInit()
         glm::vec3(10.0f, 10.0f, 10.0f)
     };
 
-    Planet* p1 = new Planet(t, sphere, sc, 1000.0, objects);
+    Planet* p1 = new Planet(t, earth, sc, 1000.0, objects);
     objects.push_back(p1);
     Planet* p2 = new Planet(t2, sphere, sc, 100.0, objects);
     objects.push_back(p2);
@@ -285,9 +278,8 @@ int main(int argc, char** argv) {
   initializeShaderPrograms(sc);
 
   sceneInit();
-
   InitApplication();
-
+  glutFullScreen(); 
   glutMainLoop();
 
   delete camera;
