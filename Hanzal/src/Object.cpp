@@ -55,7 +55,7 @@ void Object::renderObject(SCommonShaderProgram& shaderProgram, const glm::mat4& 
         projectionMatrix
     );
 
-    
+    //=======================================
     Material mat = {
        glm::vec3(1.0),
        glm::vec3(1.0),
@@ -63,9 +63,15 @@ void Object::renderObject(SCommonShaderProgram& shaderProgram, const glm::mat4& 
        0.0f,
        tex_
     };
+    DirectionalLight dirLight;
+    dirLight.position = glm::vec3(0.0, 0.0, 1.0);
+    dirLight.ambient = glm::vec3(0.2);
+    dirLight.diffuse = glm::vec3(1.0);
+    dirLight.specular = glm::vec3(0.2);
+    //=======================================
 
-    
     setMaterialUniforms(shaderProgram, mat);
+    setDirectionalLightUniforms(shaderProgram, dirLight);
 
     glBindVertexArray(mesh->vertexArrayObject);
     glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_INT, 0);
