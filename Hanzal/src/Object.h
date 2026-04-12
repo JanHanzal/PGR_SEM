@@ -12,15 +12,14 @@ class Object
 {
     protected:
         Transform transform;
+        Renderer::ObjectType objectType;
+
         glm::vec3 velocity;
-        MeshGeometry* mesh = NULL;
         const char* sun = "Data/Earth.jpg";
         GLuint tex_;
 
     public:
-        Object(Transform _transform, const char* mesh_file_location, SCommonShaderProgram& shader);
-
-        ~Object();
+        Object(Transform _transform, Renderer::ObjectType _objectType);
 
         virtual void Update(float deltaTime);
 
@@ -31,8 +30,6 @@ class Object
         glm::vec3 getPosition();
 
         void renderObject(SCommonShaderProgram& shaderProgram, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
-
-        MeshGeometry* getMesh();
 };
 
 class Planet : public Object
@@ -43,9 +40,7 @@ class Planet : public Object
         float speed = 10.0f;
 
     public:
-        Planet(Transform _transform, const char* mesh_file_location, SCommonShaderProgram& shader, float _mass, const std::vector<Planet*>& _orbitPlanet);
-
-        ~Planet();
+        Planet(Transform _transform, Renderer::ObjectType _objectType, float _mass, const std::vector<Planet*>& _orbitPlanet);
 
         void Update(float timeDelta);
 

@@ -1,7 +1,10 @@
 #include "pgr.h"
+#include "Renderer.h"
 
 #ifndef __PGR_SEM_H
 #define __PGR_SEM_H
+
+extern Renderer renderer;
 
 #define WORLD_UP_VECTOR glm::vec3(0.0f, 0.0f, 1.0f)
 #define CAMERA_ELEVATION_MAX 90

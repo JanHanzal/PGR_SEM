@@ -19,6 +19,7 @@ float elapsedTime = 0.0f;
 
 std::vector<Planet*> objects;
 SCommonShaderProgram sc;
+Renderer renderer;
 Camera *camera;
 
 enum Controls
@@ -36,6 +37,8 @@ bool _input[CONTROLS_LENGTH];
 
 void InitApplication()
 {
+    renderer.Init();
+
     for (bool& b : _input)
         b = false;
 
@@ -212,18 +215,9 @@ void passiveMouseMotionCallback(int mouseX, int mouseY)
     glutPostRedisplay();
 }
 
-void addPlanetToScene(Transform t, const char* path_to_Model, float mass)
-{
-    objects.push_back(new Planet(t, path_to_Model, sc, mass, objects));
-}
-
 
 void sceneInit()
 {
-    const char* sphere = "Data/Sphere.obj";
-    const char* earth = "Data/Earth.obj";
-    const char* qhoul = "Data/ghoul.obj";
-    
     struct Transform t = {
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(90.0f, 0.0f, 12.0f),
@@ -242,11 +236,11 @@ void sceneInit()
         glm::vec3(10.0f, 10.0f, 10.0f)
     };
 
-    Planet* p1 = new Planet(t, earth, sc, 1000.0, objects);
+    Planet* p1 = new Planet(t, Renderer::Sphere, 1000.0, objects);
     objects.push_back(p1);
-    Planet* p2 = new Planet(t2, sphere, sc, 100.0, objects);
+    Planet* p2 = new Planet(t2, Renderer::Sphere, 100.0, objects);
     objects.push_back(p2);
-    Planet* p3 = new Planet(t3, sphere, sc, 1000.0, objects);
+    Planet* p3 = new Planet(t3, Renderer::Sphere, 1000.0, objects);
     objects.push_back(p3);
 }
 
@@ -275,7 +269,7 @@ int main(int argc, char** argv) {
   if(!pgr::initialize(pgr::OGL_VER_MAJOR, pgr::OGL_VER_MINOR))
     pgr::dieWithError("pgr init failed, required OpenGL not supported?");
 
-  initializeShaderPrograms(sc);
+  //initializeShaderPrograms(sc);
 
   sceneInit();
   InitApplication();
