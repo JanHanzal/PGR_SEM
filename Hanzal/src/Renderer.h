@@ -14,13 +14,13 @@ class Renderer
 			GHOUL,
 			OBJECT_TYPE_SIZE
 		};
-
+		
 	private:
 		std::vector<MeshGeometry*> geometry;
 		SCommonShaderProgram objectShader;
 
 		DirectionalLight directionalLight;
-
+		SpotLight spotLight;
 
 //=============================================================
 	private:
@@ -37,6 +37,8 @@ class Renderer
 
 
 		void changeDirectionalLightParams(DirectionalLight newDirLight);
+
+		void changeSpotLightParams(SpotLight _spotLight);
 		
 		void renderObject(ObjectType objectType,
 			const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,

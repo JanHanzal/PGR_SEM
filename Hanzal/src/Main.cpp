@@ -19,8 +19,8 @@ float elapsedTime = 0.0f;
 
 std::vector<Planet*> objects;
 Renderer renderer;
-Camera *camera;
-
+Camera* camera;
+glm::vec3 pos; 
 
 
 enum Controls
@@ -91,6 +91,22 @@ void onDisplay(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     ViewProjectionMatrix VP = camera->getVPMatrixes();
+    
+    //==================================
+    SpotLight sl = {
+        camera->getPosition(),
+        camera->getFrontVector(),
+
+        glm::vec3(0.1f),
+        glm::vec3(1.0f),
+        glm::vec3(0.5f),
+
+        10.0f,
+        120.0f
+    };
+    renderer.changeSpotLightParams(sl);
+    //==================================
+
     for (Planet* o : objects)
     {
         if (objects[1] == o && camera->getCameraControlType() == Camera::LOCKED)

@@ -1,5 +1,4 @@
 #include "Renderer.h"
-#include "iostream"
 
 void Renderer::shadersInit()
 {
@@ -29,6 +28,18 @@ void Renderer::setUpLights()
 		glm::vec3(1.0f),			// Diffuse
 		glm::vec3(0.5f)				// Specular
 	};
+
+	spotLight = {
+		glm::vec3(1.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+
+		glm::vec3(0.1f),
+		glm::vec3(1.0f),
+		glm::vec3(0.5f),
+
+		45.0f,
+		1.0f
+	};
 }
 
 Renderer::~Renderer()
@@ -52,6 +63,11 @@ void Renderer::Init()
 void Renderer::changeDirectionalLightParams(DirectionalLight newDirLight)
 {
 	directionalLight = newDirLight;
+}
+
+void Renderer::changeSpotLightParams(SpotLight _spotLight)
+{
+	spotLight = _spotLight;
 }
 
 void Renderer::renderObject(ObjectType objectType,
@@ -104,26 +120,15 @@ void Renderer::renderObject(ObjectType objectType, const Material material,
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-
+	
 	setTransformUniforms(objectShader, modelMatrix, viewMatrix, projectionMatrix);
 
 	setMaterialUniforms(objectShader, material);
 	setDirectionalLightUniforms(objectShader, directionalLight);
-
-	//============
-	SpotLight sl = {
-		glm::vec3(0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-
-		glm::vec3(1.0f),
-		glm::vec3(1.0f),
-		glm::vec3(0.5f),
-
-		45.0f,
-		5.0f
-	};
-	setSpotLightUniforms(objectShader, sl);
-	//============
+	
+	
+	setSpotLightUniforms(objectShader, spotLight);
+	
 	
 
 	glBindVertexArray(mesh->vertexArrayObject);
