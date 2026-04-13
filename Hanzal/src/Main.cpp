@@ -56,6 +56,35 @@ void initApplication()
     camera->changeCameraProjectionType(Camera::ProjectionType::PERSPECTIVE);
 }
 
+void sceneInit()
+{
+    struct Transform t = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(90.0f, 0.0f, 12.0f),
+        glm::vec3(10.0f, 10.0f, 10.0f)
+    };
+
+    struct Transform t2 = {
+        glm::vec3(100.0f, 0.0f, 0.0f),
+        glm::vec3(90.0f, 0.0f, 0.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f)
+    };
+
+    struct Transform t3 = {
+        glm::vec3(200.0f, 0.0f, 0.0f),
+        glm::vec3(90.0f, 0.0f, 0.0f),
+        glm::vec3(10.0f, 10.0f, 10.0f)
+    };
+
+
+    Planet* p1 = new Planet(t,Renderer::SPHERE, 10000.0, 0.0f, objects);
+    objects.push_back(p1);
+    Planet* p2 = new Planet(t2, Renderer::SPHERE, 100.0f, 20.0f, objects);
+    objects.push_back(p2);
+    Planet* p3 = new Planet(t3, Renderer::SPHERE, 10000.0, 20.0f, objects);
+    objects.push_back(p3);
+}
+
 
 void onDisplay(void)
 {
@@ -245,33 +274,6 @@ void passiveMouseMotionCallback(int mouseX, int mouseY)
 }
 
 
-void sceneInit()
-{
-    struct Transform t = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(90.0f, 0.0f, 12.0f),
-        glm::vec3(10.0f, 10.0f, 10.0f)
-    };
-
-    struct Transform t2 = {
-        glm::vec3(100.0f, 0.0f, 0.0f),
-        glm::vec3(90.0f, 0.0f, 0.0f),
-        glm::vec3(1.0f, 1.0f, 1.0f)
-    };
-
-    struct Transform t3 = {
-        glm::vec3(200.0f, 0.0f, 0.0f),
-        glm::vec3(90.0f, 0.0f, 0.0f),
-        glm::vec3(10.0f, 10.0f, 10.0f)
-    };
-
-    Planet* p1 = new Planet(t,Renderer::SPHERE, 10000.0, 0.0f, objects);
-    objects.push_back(p1);
-    Planet* p2 = new Planet(t2, Renderer::SPHERE, 100.0f, 20.0f, objects);
-    objects.push_back(p2);
-    Planet* p3 = new Planet(t3, Renderer::SPHERE, 10000.0, 20.0f, objects);
-    objects.push_back(p3);
-}
 
 
 int main(int argc, char** argv) {

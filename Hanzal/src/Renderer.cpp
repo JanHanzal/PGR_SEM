@@ -24,10 +24,10 @@ void Renderer::loadMeshes()
 void Renderer::setUpLights()
 {
 	directionalLight = {
-		glm::vec3(0.0f, 0.0f, 1.0f), // Position 
-		glm::vec3(0.2f, 0.2f, 0.2f), // Ambient
-		glm::vec3(1.0f, 1.0f, 1.0f), // Diffuse
-		glm::vec3(0.0f, 0.0f, 0.0f)  // Specular
+		glm::vec3(0.0f, 0.0f, 1.0f),// Position 
+		glm::vec3(0.1f),			// Ambient
+		glm::vec3(1.0f),			// Diffuse
+		glm::vec3(0.5f)				// Specular
 	};
 }
 
@@ -109,6 +109,22 @@ void Renderer::renderObject(ObjectType objectType, const Material material,
 
 	setMaterialUniforms(objectShader, material);
 	setDirectionalLightUniforms(objectShader, directionalLight);
+
+	//============
+	SpotLight sl = {
+		glm::vec3(0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+
+		glm::vec3(1.0f),
+		glm::vec3(1.0f),
+		glm::vec3(0.5f),
+
+		45.0f,
+		5.0f
+	};
+	setSpotLightUniforms(objectShader, sl);
+	//============
+	
 
 	glBindVertexArray(mesh->vertexArrayObject);
 	glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_INT, 0);
