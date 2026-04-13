@@ -30,7 +30,7 @@ class Object
 
         glm::vec3 getPosition();
 
-        void renderObject(SCommonShaderProgram& shaderProgram, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
+        void renderObject(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
 };
 
 class Planet : public Object
@@ -38,11 +38,10 @@ class Planet : public Object
     private:
         float mass;
         const std::vector<Planet *> orbitPlanet;
-        float speed = 10.0f;
+        float speed = 20.0f;
 
     public:
-        Planet(Transform _transform, Renderer::ObjectType _objectType, float _mass, const std::vector<Planet*>& _orbitPlanet);
-
+        Planet(Transform _transform, Renderer::ObjectType _objectType, float _mass, float _speed, const std::vector<Planet*>& _orbitPlanet);
         void Update(float timeDelta);
 
         float getAcceleration(const int mass, const float radius);

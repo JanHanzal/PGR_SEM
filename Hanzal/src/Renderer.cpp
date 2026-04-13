@@ -8,15 +8,15 @@ void Renderer::shadersInit()
 
 void Renderer::loadMeshes()
 {
-	geometry.resize(ObjectTypeSize);
+	geometry.resize(OBJECT_TYPE_SIZE);
 
 	const char* earth = "Data/Earth.obj";
 
 	const char* sphere = "Data/Sphere.obj";
-	loadSingleMesh(sphere, objectShader, &geometry[Sphere]);
+	loadSingleMesh(sphere, objectShader, &geometry[SPHERE]);
 		
 	const char* qhoul = "Data/ghoul.obj";
-	loadSingleMesh(qhoul, objectShader, &geometry[Ghoul]);
+	loadSingleMesh(qhoul, objectShader, &geometry[GHOUL]);
 
 	CHECK_GL_ERROR();
 }
@@ -58,7 +58,7 @@ void Renderer::renderObject(ObjectType objectType,
 	const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
 	const glm::mat4& projectionMatrix, bool wireframed)
 {
-	if (objectType == ObjectTypeSize)
+	if (objectType == OBJECT_TYPE_SIZE)
 		return;
 
  	const MeshGeometry* mesh = geometry[objectType];
@@ -92,7 +92,7 @@ void Renderer::renderObject(ObjectType objectType, const Material material,
 	const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
 	const glm::mat4& projectionMatrix, bool wireframed)
 {
-	if (objectType == ObjectTypeSize)
+	if (objectType == OBJECT_TYPE_SIZE)
 		return;
 
 	const MeshGeometry* mesh = geometry[objectType];

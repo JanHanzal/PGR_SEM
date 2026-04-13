@@ -10,9 +10,9 @@ class Renderer
 	public:
 		enum ObjectType
 		{
-			Sphere,
-			Ghoul,
-			ObjectTypeSize
+			SPHERE,
+			GHOUL,
+			OBJECT_TYPE_SIZE
 		};
 
 	private:

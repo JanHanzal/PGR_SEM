@@ -30,7 +30,9 @@ struct ViewProjectionMatrix
 class Camera
 {
     public:
-        enum CameraType { ORTHO, PERSPECTIVE };
+        enum ProjectionType { ORTHO, PERSPECTIVE };
+        enum CameraControlType { FREE, LOCKED, SPHERICAL };
+
         float sensitivity = 0.05f;
         float speed = 10.0f;
         
@@ -40,8 +42,14 @@ class Camera
         float FOV = 60.0f;
         float aspect;
         float nearPlane = 0.1f, farPlane = 50.0f;
+        
+        float radius = 30.0f;
+        
 
-        Camera::CameraType cameraType = ORTHO;
+        Camera::ProjectionType projectionType = PERSPECTIVE;
+        Camera::CameraControlType cameraControl = FREE;
+
+
         ViewProjectionMatrix vpMatrix;
         
         glm::vec3 center = { 0.0f, 0.0f, 0.0f };
@@ -50,7 +58,7 @@ class Camera
 
         void updateCameraMatrixes()
         {
-            if (cameraType == ORTHO)
+            if (projectionType == ProjectionType::ORTHO)
             {
                 vpMatrix.projectionMatrix = glm::ortho(
                     -width/2, width/2,
@@ -87,37 +95,6 @@ class Camera
             updateCameraMatrixes();
         }
 
-        void setPosition(glm::vec3 position)
-        {
-            transform.position = position;
-        }
-
-        void reshapeWindow(float _width, float _height)
-        {
-            width = _width;
-            heigth = _height;
-            aspect = width / heigth;
-        }
-
-        void changeCameraType()
-        {
-            cameraType = static_cast<Camera::CameraType>((cameraType + 1) % 2);
-        }
-
-        void changeCameraType(CameraType _cameraType)
-        {
-            if (cameraType == _cameraType)
-                return;
-            
-            cameraType = _cameraType;
-        }
-    
-        void changeCenterPoint(glm::vec3 newCenter)
-        {
-            center = newCenter;
-            upVector = glm::normalize(glm::cross(center - transform.position, glm::vec3(0.0f, 1.0f, 0.0f)));
-        }
-
 
         void rotateCamera(const float yaw, const float pitch)
         {
@@ -135,6 +112,9 @@ class Camera
 
         void Move(glm::vec3 motion, float deltaTime)
         {
+            if (cameraControl != FREE)
+                return;
+
             glm::vec3 direction = glm::normalize(center - transform.position);
             glm::vec3 right = glm::normalize(glm::cross(direction, upVector));
             glm::vec3 _motion = (direction * motion.x) + (right * motion.y);
@@ -145,20 +125,82 @@ class Camera
 
         void Update(float timeDelta)
         {   
-            //Rotation.x = phi, Rotation.z = theta
-            glm::vec3 front = 
-            { 
-                cos(glm::radians(PHI)) * cos(glm::radians(THETA)), 
-                sin(glm::radians(PHI)) * cos(glm::radians(THETA)),
-                sin(glm::radians(THETA)) 
-            };
-
-            center = transform.position + glm::normalize(front);
+            if (cameraControl == CameraControlType::FREE)
+            {
+                //Rotation.x = phi, Rotation.z = theta
+                glm::vec3 front = getSpherePosition();
+                center = transform.position + glm::normalize(front);
+            }
+            
             changeVectors();
 
             updateCameraMatrixes();
         }
 
+
+        void reshapeWindow(float _width, float _height)
+        {
+            width = _width;
+            heigth = _height;
+            aspect = width / heigth;
+        }
+
+        
+        void setPosition(glm::vec3 position)
+        {
+            transform.position = position;
+        }
+
+        
+        void changeCameraProjectionType(ProjectionType _projectionType)
+        {         
+            projectionType = _projectionType;
+        }
+    
+        void changeCenterPoint(glm::vec3 newCenter)
+        {
+            center = newCenter;
+            upVector = glm::normalize(glm::cross(center - transform.position, glm::vec3(0.0f, 1.0f, 0.0f)));
+        }
+
+
+        void changeCameraControl(CameraControlType _cameraControl)
+        {
+            cameraControl = _cameraControl;   
+        }
+
+        CameraControlType getCameraControlType()
+        {
+            return cameraControl;
+        }
+        
+
+
+        void increaseRadius(float amount)
+        {
+            if (radius + amount < 100 && radius + amount >= 30)
+            { 
+                radius += amount;
+            }
+           
+        }
+        
+        float getRadius()
+        {
+            return radius;
+        }
+
+
+        glm::vec3 getSpherePosition()
+        {
+            glm::vec3 spherePosition = glm::vec3(
+                cos(glm::radians(PHI)) * cos(glm::radians(THETA)),
+                sin(glm::radians(PHI)) * cos(glm::radians(THETA)),
+                sin(glm::radians(THETA))
+            );
+
+            return spherePosition;
+        }
 
         ViewProjectionMatrix getVPMatrixes()
         {

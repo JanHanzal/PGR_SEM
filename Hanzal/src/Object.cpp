@@ -29,7 +29,7 @@ glm::vec3 Object::getPosition()
     return transform.position;
 }
 
-void Object::renderObject(SCommonShaderProgram& shaderProgram, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+void Object::renderObject(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
     glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), transform.position);
     modelMatrix = glm::scale(modelMatrix, glm::vec3(transform.scale));
@@ -45,12 +45,12 @@ void Object::renderObject(SCommonShaderProgram& shaderProgram, const glm::mat4& 
        0.0f,                          // Shininess
        tex_              
     };
-    renderer.renderObject(Renderer::ObjectType::Sphere, mat,modelMatrix, viewMatrix, projectionMatrix, false);
+    renderer.renderObject(objectType, mat,modelMatrix, viewMatrix, projectionMatrix, false);
 }
 
 
-Planet::Planet(Transform _transform, Renderer::ObjectType _objectType, float _mass, const std::vector<Planet*>& _orbitPlanet) :
-    Object(_transform, _objectType), mass(_mass), orbitPlanet(_orbitPlanet)
+Planet::Planet(Transform _transform, Renderer::ObjectType _objectType, float _mass, float _speed, const std::vector<Planet*>& _orbitPlanet) :
+    Object(_transform, _objectType), mass(_mass), orbitPlanet(_orbitPlanet), speed(_speed)
 {
     velocity = glm::cross(glm::vec3(WORLD_UP_VECTOR), transform.position);
     if(glm::length(velocity) > 0)

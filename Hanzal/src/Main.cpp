@@ -18,9 +18,10 @@ const char * WIN_TITLE = "Hanzal Semestral Assignment";
 float elapsedTime = 0.0f;
 
 std::vector<Planet*> objects;
-SCommonShaderProgram sc;
 Renderer renderer;
 Camera *camera;
+
+
 
 enum Controls
 {
@@ -35,7 +36,7 @@ enum Controls
 
 bool _input[CONTROLS_LENGTH];
 
-void InitApplication()
+void initApplication()
 {
     renderer.Init();
 
@@ -52,7 +53,7 @@ void InitApplication()
         glm::vec3(1.0, 1.0f, 1.0f),
     };
     camera = new Camera(t, WIN_WIDTH, WIN_HEIGHT, NEAR, FAR);
-    camera->changeCameraType(Camera::CameraType::PERSPECTIVE);
+    camera->changeCameraProjectionType(Camera::ProjectionType::PERSPECTIVE);
 }
 
 
@@ -63,22 +64,42 @@ void onDisplay(void)
     ViewProjectionMatrix VP = camera->getVPMatrixes();
     for (Planet* o : objects)
     {
-        o->renderObject(sc, VP.viewMatrix, VP.projectionMatrix);
+        if (objects[1] == o && camera->getCameraControlType() == Camera::LOCKED)
+            continue;
+            
+        o->renderObject(VP.viewMatrix, VP.projectionMatrix);
     }
     
     glutSwapBuffers();
+}
+
+void lateWorldUpdate(float deltaTime)
+{
+    glm::vec3 spherePosition = camera->getRadius() * camera->getSpherePosition();
+    switch (camera->getCameraControlType())
+    {
+        case Camera::FREE:
+            break;
+        case Camera::LOCKED:
+            camera->setPosition(objects[1]->getPosition() + glm::vec3(0.0, 0.0, 0.0));
+            break;
+        case Camera::SPHERICAL:
+            camera->setPosition(objects[0]->getPosition() - spherePosition);
+            break;
+        default:
+            break;
+    }
 }
 
 void updateWorld(float deltaTime)
 {
     for (Planet* o : objects)
         o->Update(deltaTime);
+
+    lateWorldUpdate(deltaTime);
 }
 
-void lateUpdateWorld(float deltaTime)
-{
-   //camera->changeCenterPoint(objects[0]->getPosition());
-}
+
 
 
 void onReshape(int width, int height)
@@ -125,12 +146,11 @@ void timerCallback(int)
     
     
     updateWorld(deltaTime);
-    //lateUpdateWorld(deltaTime);
+    //lateWorldUpdate(deltaTime);
 
     glutTimerFunc(1000/FPS, timerCallback, 0);
     glutPostRedisplay();
 }
-
 
 void keyboardCallback(unsigned char keyPressed, int mouseX, int mouseY)
 {
@@ -157,17 +177,6 @@ void keyboardCallback(unsigned char keyPressed, int mouseX, int mouseY)
     case 'd':
         _input[D] = true;
         break;
-    //===============================================
-    //Debug==========================================
-    case 'm':
-        camera->printLocation();
-        ;       break;
-    case 'c':
-        camera->setPosition(objects[2]->getPosition() + glm::vec3(0.0, 0.0, 30.0));
-        //camera->changeCameraType();
-        break;
-    //===============================================
-    //===============================================
     default:
         break;
     }
@@ -200,6 +209,26 @@ void keyboardUpCallback(unsigned char keyReleased, int mouseX, int mouseY) {
     }
 }
 
+void keyboardSpecialCallback(int key, int x, int y) {
+    switch (key) {
+    case GLUT_KEY_F1:
+        camera->changeCameraControl(Camera::LOCKED);
+        camera->changeCenterPoint(objects[0]->getPosition());
+        break;
+    case GLUT_KEY_F2:
+        camera->changeCameraControl(Camera::SPHERICAL);
+        camera->changeCenterPoint(objects[0]->getPosition());
+        break;
+    case GLUT_KEY_F3:
+        camera->changeCameraControl(Camera::FREE);
+        break;
+    }
+}
+
+void mouseWheelCallback(int wheel, int direction, int x, int y) {
+    
+    camera->increaseRadius(glm::sign(-direction) * 5.0f);
+}
 
 void passiveMouseMotionCallback(int mouseX, int mouseY) 
 {
@@ -236,48 +265,53 @@ void sceneInit()
         glm::vec3(10.0f, 10.0f, 10.0f)
     };
 
-    Planet* p1 = new Planet(t, Renderer::Sphere, 1000.0, objects);
+    Planet* p1 = new Planet(t,Renderer::SPHERE, 10000.0, 0.0f, objects);
     objects.push_back(p1);
-    Planet* p2 = new Planet(t2, Renderer::Sphere, 100.0, objects);
+    Planet* p2 = new Planet(t2, Renderer::SPHERE, 100.0f, 20.0f, objects);
     objects.push_back(p2);
-    Planet* p3 = new Planet(t3, Renderer::Sphere, 1000.0, objects);
+    Planet* p3 = new Planet(t3, Renderer::SPHERE, 10000.0, 20.0f, objects);
     objects.push_back(p3);
 }
 
 
 int main(int argc, char** argv) {
-  glutInit(&argc, argv);
-  glutInitContextVersion(pgr::OGL_VER_MAJOR, pgr::OGL_VER_MINOR);
-  glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
+    glutInit(&argc, argv);
+    glutInitContextVersion(pgr::OGL_VER_MAJOR, pgr::OGL_VER_MINOR);
+    glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
 
-  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-  glutInitWindowSize(WIN_WIDTH, WIN_HEIGHT);
-  glutCreateWindow(WIN_TITLE);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitWindowSize(WIN_WIDTH, WIN_HEIGHT);
+    glutCreateWindow(WIN_TITLE);
 
-  //======================================
-  //Callbacks-----------------------------
-  glutDisplayFunc(onDisplay);
-  glutTimerFunc(33, timerCallback, 0);
-  glutReshapeFunc(onReshape);
-  glutKeyboardFunc(keyboardCallback);
-  glutKeyboardUpFunc(keyboardUpCallback);
-  glutPassiveMotionFunc(passiveMouseMotionCallback);
-  glutWarpPointer(WIN_WIDTH / 2, WIN_HEIGHT / 2);
-  //======================================
-  glutSetCursor(GLUT_CURSOR_NONE);
+    //======================================
+    //Callbacks-----------------------------
+    glutDisplayFunc(onDisplay);
+    glutTimerFunc(33, timerCallback, 0);
+    glutReshapeFunc(onReshape);
+    glutKeyboardFunc(keyboardCallback);
+    glutKeyboardUpFunc(keyboardUpCallback);
+    glutSpecialFunc(keyboardSpecialCallback);
+    glutPassiveMotionFunc(passiveMouseMotionCallback);
+    glutMouseWheelFunc(mouseWheelCallback);
+    glutWarpPointer(WIN_WIDTH / 2, WIN_HEIGHT / 2);
+    //======================================
+    glutSetCursor(GLUT_CURSOR_NONE);
 
-  if(!pgr::initialize(pgr::OGL_VER_MAJOR, pgr::OGL_VER_MINOR))
-    pgr::dieWithError("pgr init failed, required OpenGL not supported?");
+    if (!pgr::initialize(pgr::OGL_VER_MAJOR, pgr::OGL_VER_MINOR))
+        pgr::dieWithError("Pgr init failed, required OpenGL not supported?");
 
-  //initializeShaderPrograms(sc);
+    sceneInit();
+    initApplication();
+    glutFullScreen();
+    
 
-  sceneInit();
-  InitApplication();
-  glutFullScreen(); 
-  glutMainLoop();
+    glutMainLoop();
 
-  delete camera;
-  for (Planet* p : objects)
-      delete p;
-  return 0;
+  
+  
+
+    delete camera;
+    for (Planet* p : objects)
+        delete p;
+    return 0;
 }
