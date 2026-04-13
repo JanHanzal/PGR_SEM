@@ -41,10 +41,11 @@ void Object::renderObject(const glm::mat4& viewMatrix, const glm::mat4& projecti
     Material mat = {
        glm::vec3(1.0f, 1.0f, 1.0f),   // Ambient
        glm::vec3(1.0f, 1.0f, 1.0f),   // Diffuse
-       glm::vec3(0.0f),               // Specular
-       0.0f,                          // Shininess
+       glm::vec3(1.0f),               // Specular
+       64.0f,                         // Shininess
        tex_              
     };
+    
     renderer.renderObject(objectType, mat,modelMatrix, viewMatrix, projectionMatrix, false);
 }
 

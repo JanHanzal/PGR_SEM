@@ -40,11 +40,32 @@ void setMaterialUniforms(SCommonShaderProgram& shaderProgram, const Material mat
 
 void setDirectionalLightUniforms(SCommonShaderProgram& shaderProgram, const DirectionalLight light)
 {
-	glUniform3fv(shaderProgram.dl_positionLocation, 1, glm::value_ptr(light.position));
+	glUniform3fv(shaderProgram.dl_positionLocation, 
+		1, 
+		glm::value_ptr(glm::vec3( cos(elapsedTime), -sin(elapsedTime), 0.0f))
+	);
 	glUniform3fv(shaderProgram.dl_ambientLocation, 1, glm::value_ptr(light.ambient));
 	glUniform3fv(shaderProgram.dl_diffuseLocation, 1, glm::value_ptr(light.diffuse));
 	glUniform3fv(shaderProgram.dl_specularLocation, 1, glm::value_ptr(light.specular));
+
+	/*glUniform3fv(shaderProgram.dl_diffuseLocation, 1, glm::value_ptr(
+		glm::vec3(std::max(cos(elapsedTime) , 0.0f), 1.0f, std::max(sin(elapsedTime), 0.0f)))
+	);*/
+	
 }
+
+void setSpotLightUniforms(SCommonShaderProgram& shaderProgram, const SpotLight light)
+{
+	glUniform3fv(shaderProgram.sl_positionLocation,1,glm::value_ptr(light.position));
+	glUniform3fv(shaderProgram.sl_directionLocation, 1, glm::value_ptr(light.diretion));
+	glUniform3fv(shaderProgram.sl_ambientLocation, 1, glm::value_ptr(light.ambient));
+	glUniform3fv(shaderProgram.sl_diffuseLocation, 1, glm::value_ptr(light.diffuse));
+	glUniform3fv(shaderProgram.sl_specularLocation, 1, glm::value_ptr(light.specular));
+	
+	glUniform1f(shaderProgram.sl_CutOffLocation, light.CutOff);
+	glUniform1f(shaderProgram.sl_exponentLocation, light.exponent);
+}
+
 
 void initializeShaderPrograms(SCommonShaderProgram& shaderProgram) 
 {
@@ -97,7 +118,6 @@ void initializeShaderPrograms(SCommonShaderProgram& shaderProgram)
 	shaderProgram.pl_specularLocation = glGetUniformLocation(shaderProgram.program, "pointLight.specular");
 	shaderProgram.pl_radiusLocation = glGetUniformLocation(shaderProgram.program, "pointLight.radius");
 	shaderProgram.pl_quadraticLocation = glGetUniformLocation(shaderProgram.program, "pointLight.quadratic");
-	
 }
 
 void cleanupShaderPrograms(SCommonShaderProgram& shaderProgram)

@@ -1,7 +1,10 @@
 #include "pgr.h"
 
+
 #ifndef __SHADER_H
 #define __SHADER_H
+
+extern float elapsedTime;
 
 #define VERT_SHADER "Shaders/defaultShader.vert"
 #define FRAG_SHADER "Shaders/defaultShader.frag"
@@ -105,6 +108,8 @@ void setTransformUniforms(SCommonShaderProgram& shaderProgram, const glm::mat4& 
 void setMaterialUniforms(SCommonShaderProgram& shaderProgram, const Material material);
 
 void setDirectionalLightUniforms(SCommonShaderProgram& shaderProgram, const DirectionalLight light);
+
+void setSpotLightUniforms(SCommonShaderProgram& shaderProgram, const SpotLight light);
 
 void initializeShaderPrograms(SCommonShaderProgram& shaderProgram);
 

@@ -26,7 +26,7 @@ struct Light {
 };
 
 
-uniform sampler2D texSampler;;
+uniform sampler2D texSampler;
 uniform Material material;
 uniform mat4 Vmatrix;
 
@@ -64,7 +64,8 @@ vec3 getDirectionalLight(Light light, Material mat, vec3 vPos, vec3 vNorm) {
 }
 
 vec3 getSpotLight(Light light, Material mat, vec3 vPos, vec3 vNorm) {
-    vec3 L = normalize(light.position - vPos);
+    vec3 viewSpaceLightPos = vec3(Vmatrix * vec4(light.position, 1.0));
+    vec3 L = normalize(viewSpaceLightPos - vPos);
     vec3 N = normalize(vNorm);
     vec3 V = normalize(-vPos);
     vec3 R = reflect(-L, N);
@@ -73,7 +74,7 @@ vec3 getSpotLight(Light light, Material mat, vec3 vPos, vec3 vNorm) {
     float spotEffect = dot(D, -L);
     vec3 ret = vec3(0.0);
 
-    if(spotEffect >= light.cutOff) {
+    if(spotEffect >= cos(radians(light.cutOff))) {
         float spotIntensity = pow(spotEffect, light.exponent);
         
         float NdotL = max(dot(N, L), 0.0);
@@ -97,10 +98,10 @@ void main() {
   vec3 globalAmbientLight = vec3(0.0);
   vec3 outputColor = material.ambient * globalAmbientLight;
   
-  outputColor += getDirectionalLight(directionalLight, material, vertexPosition_v, N);
+  //outputColor += getDirectionalLight(directionalLight, material, vertexPosition_v, N);
   
-  //outputColor += getSpotLight(sun, material, vertexPosition_v, N);
-  //outputColor += getPointLight(sun, material, vertexPosition_v, N);
+  outputColor += getSpotLight(spotLight, material, vertexPosition_v, N);
+  //outputColor += getPointLight(pointLight, material, vertexPosition_v, N);
 
   vec4 texColor = vec4(1.0);
   if (material.useTexture) 
