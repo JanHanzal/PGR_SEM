@@ -7,7 +7,6 @@ Object::Object(Transform _transform, Renderer::ObjectType _objectType):
     tex_ = pgr::createTexture(sun);
 }
 
-
 void Object::Update(float deltaTime)
 {
     glm::vec3 motion = velocity * deltaTime;
@@ -40,16 +39,13 @@ void Object::renderObject(SCommonShaderProgram& shaderProgram, const glm::mat4& 
     
   
     Material mat = {
-       glm::vec3(1.0),
-       glm::vec3(1.0),
-       glm::vec3(0.0),
-       0.0f,
-       tex_
+       glm::vec3(1.0f, 1.0f, 1.0f),   // Ambient
+       glm::vec3(1.0f, 1.0f, 1.0f),   // Diffuse
+       glm::vec3(0.0f),               // Specular
+       0.0f,                          // Shininess
+       tex_              
     };
-    
-    renderer.renderObject(Renderer::Sphere, mat, modelMatrix, viewMatrix, projectionMatrix, false);
-    return;
-    
+    renderer.renderObject(Renderer::ObjectType::Sphere, mat,modelMatrix, viewMatrix, projectionMatrix, false);
 }
 
 

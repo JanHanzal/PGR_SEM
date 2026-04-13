@@ -13,6 +13,7 @@ class Object
     protected:
         Transform transform;
         Renderer::ObjectType objectType;
+        Material material;
 
         glm::vec3 velocity;
         const char* sun = "Data/Earth.jpg";

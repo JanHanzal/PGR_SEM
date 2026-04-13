@@ -84,6 +84,7 @@ class Camera
         {
             aspect = width / heigth;
             changeVectors();
+            updateCameraMatrixes();
         }
 
         void setPosition(glm::vec3 position)
@@ -144,7 +145,7 @@ class Camera
 
         void Update(float timeDelta)
         {   
-            //Rotation.x = phi, Rotation.y = theta
+            //Rotation.x = phi, Rotation.z = theta
             glm::vec3 front = 
             { 
                 cos(glm::radians(PHI)) * cos(glm::radians(THETA)), 
@@ -162,11 +163,6 @@ class Camera
         ViewProjectionMatrix getVPMatrixes()
         {
             return vpMatrix;
-        }
-
-        void printLocation()
-        {
-            std::cout << transform.position.x << ' ' << transform.position.y << ' ' << transform.position.z << std::endl;
         }
 };
 

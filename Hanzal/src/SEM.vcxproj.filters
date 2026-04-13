@@ -27,7 +27,10 @@
     <ClCompile Include="Object.cpp">
       <Filter>Zdrojové soubory</Filter>
     </ClCompile>
-    <ClCompile Include="Shaders\Renderer.cpp">
+    <ClCompile Include="Renderer.h">
+      <Filter>Hlavičkové soubory</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
       <Filter>Zdrojové soubory</Filter>
     </ClCompile>
   </ItemGroup>
