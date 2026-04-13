@@ -151,6 +151,15 @@ class Camera
             transform.position = position;
         }
 
+        glm::vec3 getPosition()
+        {
+            return transform.position;
+        }
+
+        glm::vec3 getFrontVector()
+        {
+            return (center - transform.position);
+        }
         
         void changeCameraProjectionType(ProjectionType _projectionType)
         {         

@@ -65,25 +65,34 @@ vec3 getDirectionalLight(Light light, Material mat, vec3 vPos, vec3 vNorm) {
 
 vec3 getSpotLight(Light light, Material mat, vec3 vPos, vec3 vNorm) {
     vec3 viewSpaceLightPos = vec3(Vmatrix * vec4(light.position, 1.0));
+    
+
     vec3 L = normalize(viewSpaceLightPos - vPos);
     vec3 N = normalize(vNorm);
     vec3 V = normalize(-vPos);
-    vec3 R = reflect(-L, N);
-    vec3 D = normalize(light.direction);
-
-    float spotEffect = dot(D, -L);
+    
     vec3 ret = vec3(0.0);
+    ret += mat.ambient * light.ambient;
 
-    if(spotEffect >= cos(radians(light.cutOff))) {
-        float spotIntensity = pow(spotEffect, light.exponent);
-        
-        float NdotL = max(dot(N, L), 0.0);
-        float RdotV = max(dot(R, V), 0.0);
-
-        ret += mat.ambient * light.ambient;
-        ret += spotIntensity * mat.diffuse * light.diffuse * NdotL;
-        ret += spotIntensity * mat.specular * light.specular * pow(RdotV, mat.shininess);
+    float NdotL = dot(N, L);
+    if(NdotL < 0.0) {
+      return ret;
     }
+    vec3 viewSpaceLightDir = normalize(vec3(Vmatrix * vec4(light.direction, 0.0)));
+    float spotCoef = max(0.0, dot(-L, viewSpaceLightDir));
+    
+    if(spotCoef > cos(radians(light.cutOff))) 
+    {
+      vec3 R = reflect(-L, N);
+      float RdotV = max(0.0, dot(R, V));
+
+      ret += mat.diffuse * light.diffuse * NdotL;
+      if (mat.shininess > 0.0) 
+          ret += mat.specular * light.specular * pow(RdotV, mat.shininess);
+      
+      ret *= pow(spotCoef, light.exponent);
+    }
+
     return ret;
 }
 
