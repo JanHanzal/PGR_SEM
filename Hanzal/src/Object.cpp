@@ -1,11 +1,9 @@
 #include "Object.h"
 
 
-Object::Object(Transform _transform, Renderer::ObjectType _objectType): 
-    transform(_transform), objectType(_objectType)
-{
-    tex_ = pgr::createTexture(sun);
-}
+Object::Object(Transform _transform, Renderer::ObjectType _objectType, Material _material) :
+    transform(_transform), objectType(_objectType), material(_material)
+{};
 
 void Object::Update(float deltaTime)
 {
@@ -37,21 +35,12 @@ void Object::renderObject(const glm::mat4& viewMatrix, const glm::mat4& projecti
     modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), { 0.0f, 0.0f, 1.0f });
     modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), { 0.0f, 1.0f, 0.0f });
     
-  
-    Material mat = {
-       glm::vec3(1.0f, 1.0f, 1.0f),   // Ambient
-       glm::vec3(1.0f, 1.0f, 1.0f),   // Diffuse
-       glm::vec3(1.0f),               // Specular
-       64.0f,                         // Shininess
-       tex_              
-    };
-    
-    renderer.renderObject(objectType, mat,modelMatrix, viewMatrix, projectionMatrix, false);
+    renderer.renderObject(objectType, material, modelMatrix, viewMatrix, projectionMatrix, false);
 }
 
 
-Planet::Planet(Transform _transform, Renderer::ObjectType _objectType, float _mass, float _speed, const std::vector<Planet*>& _orbitPlanet) :
-    Object(_transform, _objectType), mass(_mass), orbitPlanet(_orbitPlanet), speed(_speed)
+Planet::Planet(Transform _transform, Renderer::ObjectType _objectType, Material material, float _mass, float _speed, const std::vector<Planet*>& _orbitPlanet) :
+    Object(_transform, _objectType, material), mass(_mass), orbitPlanet(_orbitPlanet), speed(_speed)
 {
     velocity = glm::cross(glm::vec3(WORLD_UP_VECTOR), transform.position);
     if(glm::length(velocity) > 0)

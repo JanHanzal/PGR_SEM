@@ -56,16 +56,29 @@ void setDirectionalLightUniforms(SCommonShaderProgram& shaderProgram, const Dire
 
 void setSpotLightUniforms(SCommonShaderProgram& shaderProgram, const SpotLight light)
 {
+	float cutoff = std::min(60.0f, light.CutOff);
+	cutoff = std::max(0.0f, cutoff);
+
 	glUniform3fv(shaderProgram.sl_positionLocation,1,glm::value_ptr(light.position));
 	glUniform3fv(shaderProgram.sl_directionLocation, 1, glm::value_ptr(light.diretion));
 	glUniform3fv(shaderProgram.sl_ambientLocation, 1, glm::value_ptr(light.ambient));
 	glUniform3fv(shaderProgram.sl_diffuseLocation, 1, glm::value_ptr(light.diffuse));
 	glUniform3fv(shaderProgram.sl_specularLocation, 1, glm::value_ptr(light.specular));
 	
-	glUniform1f(shaderProgram.sl_CutOffLocation, light.CutOff);
+	glUniform1f(shaderProgram.sl_CutOffLocation, cutoff);
 	glUniform1f(shaderProgram.sl_exponentLocation, light.exponent);
 }
 
+void setPointLightUniforms(SCommonShaderProgram& shaderProgram, const PointLight light)
+{
+	glUniform3fv(shaderProgram.pl_positionLocation, 1, glm::value_ptr(light.position));
+	glUniform3fv(shaderProgram.pl_ambientLocation, 1, glm::value_ptr(light.ambient));
+	glUniform3fv(shaderProgram.pl_diffuseLocation, 1, glm::value_ptr(light.diffuse));
+	glUniform3fv(shaderProgram.pl_specularLocation, 1, glm::value_ptr(light.specular));
+
+	glUniform1f(shaderProgram.pl_radiusLocation, light.radius);
+	glUniform1i(shaderProgram.pl_quadraticLocation, light.quadratic);
+}
 
 void initializeShaderPrograms(SCommonShaderProgram& shaderProgram) 
 {
@@ -97,13 +110,13 @@ void initializeShaderPrograms(SCommonShaderProgram& shaderProgram)
 	shaderProgram.texSamplerLocation = glGetUniformLocation(shaderProgram.program, "texSampler");
 	shaderProgram.useTextureLocation = glGetUniformLocation(shaderProgram.program, "material.useTexture");
 
-	//Light - Directional, Spot, Point
+	//Light - Directional
 	shaderProgram.dl_positionLocation = glGetUniformLocation(shaderProgram.program, "directionalLight.position");
 	shaderProgram.dl_ambientLocation = glGetUniformLocation(shaderProgram.program, "directionalLight.ambient");
 	shaderProgram.dl_diffuseLocation = glGetUniformLocation(shaderProgram.program, "directionalLight.diffuse");
 	shaderProgram.dl_specularLocation = glGetUniformLocation(shaderProgram.program, "directionalLight.specular");
 
-	
+	//Light - Spot
 	shaderProgram.sl_positionLocation = glGetUniformLocation(shaderProgram.program, "spotLight.position");
 	shaderProgram.sl_directionLocation = glGetUniformLocation(shaderProgram.program, "spotLight.direction");
 	shaderProgram.sl_CutOffLocation = glGetUniformLocation(shaderProgram.program, "spotLight.cutOff");
@@ -112,6 +125,7 @@ void initializeShaderPrograms(SCommonShaderProgram& shaderProgram)
 	shaderProgram.sl_diffuseLocation = glGetUniformLocation(shaderProgram.program, "spotLight.diffuse");
 	shaderProgram.sl_specularLocation = glGetUniformLocation(shaderProgram.program, "spotLight.specular");
 
+	//Light - Point
 	shaderProgram.pl_positionLocation = glGetUniformLocation(shaderProgram.program, "pointLight.position");
 	shaderProgram.pl_ambientLocation = glGetUniformLocation(shaderProgram.program, "pointLight.ambient");
 	shaderProgram.pl_diffuseLocation = glGetUniformLocation(shaderProgram.program, "pointLight.diffuse");

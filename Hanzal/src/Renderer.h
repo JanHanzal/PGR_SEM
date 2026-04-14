@@ -21,7 +21,9 @@ class Renderer
 
 		DirectionalLight directionalLight;
 		SpotLight spotLight;
+		PointLight pointLight;
 
+		bool renderSun = false;
 //=============================================================
 	private:
 		void shadersInit();
@@ -40,6 +42,8 @@ class Renderer
 
 		void changeSpotLightParams(SpotLight _spotLight);
 		
+		void changeRenderingSun();
+
 		void renderObject(ObjectType objectType,
 			const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
 			const glm::mat4& projectionMatrix, bool wireframed);

@@ -16,11 +16,9 @@ class Object
         Material material;
 
         glm::vec3 velocity;
-        const char* sun = "Data/Earth.jpg";
-        GLuint tex_;
 
     public:
-        Object(Transform _transform, Renderer::ObjectType _objectType);
+        Object(Transform _transform, Renderer::ObjectType _objectType, Material _material);
 
         virtual void Update(float deltaTime);
 
@@ -41,7 +39,7 @@ class Planet : public Object
         float speed = 20.0f;
 
     public:
-        Planet(Transform _transform, Renderer::ObjectType _objectType, float _mass, float _speed, const std::vector<Planet*>& _orbitPlanet);
+        Planet(Transform _transform, Renderer::ObjectType _objectType, Material material, float _mass, float _speed, const std::vector<Planet*>& _orbitPlanet);
         void Update(float timeDelta);
 
         float getAcceleration(const int mass, const float radius);

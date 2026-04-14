@@ -30,15 +30,27 @@ void Renderer::setUpLights()
 	};
 
 	spotLight = {
-		glm::vec3(1.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f),			// Position 
+		glm::vec3(1.0f, 0.0f, 0.0f),// Direction
 
-		glm::vec3(0.1f),
-		glm::vec3(1.0f),
-		glm::vec3(0.5f),
+		glm::vec3(0.1f),			// Ambient
+		glm::vec3(1.0f),			// Diffuse
+		glm::vec3(0.5f),			// Specular
 
-		45.0f,
-		1.0f
+		45.0f,						// Cutoff - in degrees
+		1.0f						// Exponent
+	};
+
+
+	pointLight = {
+		glm::vec3(0.0f),			// Position
+		
+		glm::vec3(0.5f),			// Ambient
+		glm::vec3(1.0f),			// Diffuse
+		glm::vec3(0.5f),			// Specular
+
+		1000.0f,					// Radius
+		false						// Is fading quadratic?
 	};
 }
 
@@ -58,7 +70,10 @@ void Renderer::Init()
 	loadMeshes();
 }
 
-
+void Renderer::changeRenderingSun()
+{
+	renderSun = !renderSun;
+}
 
 void Renderer::changeDirectionalLightParams(DirectionalLight newDirLight)
 {
@@ -122,13 +137,11 @@ void Renderer::renderObject(ObjectType objectType, const Material material,
 
 	
 	setTransformUniforms(objectShader, modelMatrix, viewMatrix, projectionMatrix);
-
 	setMaterialUniforms(objectShader, material);
+
 	setDirectionalLightUniforms(objectShader, directionalLight);
-	
-	
 	setSpotLightUniforms(objectShader, spotLight);
-	
+	setPointLightUniforms(objectShader, pointLight);
 	
 
 	glBindVertexArray(mesh->vertexArrayObject);

@@ -20,7 +20,6 @@ float elapsedTime = 0.0f;
 std::vector<Planet*> objects;
 Renderer renderer;
 Camera* camera;
-glm::vec3 pos; 
 
 
 enum Controls
@@ -58,6 +57,16 @@ void initApplication()
 
 void sceneInit()
 {
+    GLuint earth_texture = pgr::createTexture("Data/Earth.jpg");
+    GLuint sun_texture = pgr::createTexture("Data/Sun.jpg");
+    Material mat = {
+       glm::vec3(1.0f, 1.0f, 1.0f),  // Ambient
+       glm::vec3(1.0f, 1.0f, 1.0f),  // Diffuse
+       glm::vec3(1.0f),              // Specular
+       0.0f,                         // Shininess
+       sun_texture
+    };
+
     struct Transform t = {
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(90.0f, 0.0f, 12.0f),
@@ -76,12 +85,16 @@ void sceneInit()
         glm::vec3(10.0f, 10.0f, 10.0f)
     };
 
-
-    Planet* p1 = new Planet(t,Renderer::SPHERE, 10000.0, 0.0f, objects);
+    //Sun  =================================================================
+    Planet* p1 = new Planet(t,Renderer::SPHERE, mat, 10000.0, 0.0f, objects);
     objects.push_back(p1);
-    Planet* p2 = new Planet(t2, Renderer::SPHERE, 100.0f, 20.0f, objects);
+    //======================================================================
+
+    mat.shininess = 8.0f;
+    mat.texture = earth_texture;
+    Planet* p2 = new Planet(t2, Renderer::SPHERE, mat, 100.0f, 20.0f, objects);
     objects.push_back(p2);
-    Planet* p3 = new Planet(t3, Renderer::SPHERE, 10000.0, 20.0f, objects);
+    Planet* p3 = new Planet(t3, Renderer::SPHERE, mat, 10000.0, 20.0f, objects);
     objects.push_back(p3);
 }
 
@@ -98,11 +111,11 @@ void onDisplay(void)
         camera->getFrontVector(),
 
         glm::vec3(0.1f),
-        glm::vec3(1.0f),
+        glm::vec3(1.0f, 0.0f, 0.0f),
         glm::vec3(0.5f),
 
         10.0f,
-        120.0f
+        1.0f
     };
     renderer.changeSpotLightParams(sl);
     //==================================
@@ -111,7 +124,7 @@ void onDisplay(void)
     {
         if (objects[1] == o && camera->getCameraControlType() == Camera::LOCKED)
             continue;
-            
+
         o->renderObject(VP.viewMatrix, VP.projectionMatrix);
     }
     

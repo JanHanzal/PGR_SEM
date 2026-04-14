@@ -25,25 +25,20 @@ struct SpotLight {
 	glm::vec3  specular;
 
 	//SpotLight
-	float CutOff;
+	float CutOff;	// In degrees
 	float exponent;
-
-	//PointLight params
-	float radius;
-	bool quadratic;
 };
 
 struct PointLight {
 	glm::vec3  position;
-	glm::vec3 diretion;
 
 	glm::vec3  ambient;
 	glm::vec3  diffuse;
 	glm::vec3  specular;
 
 	//PointLight params
-	float radius;
-	bool quadratic;
+	float radius;		
+	bool quadratic;		// Is fading quadratic?
 };
 //============================================
 
@@ -109,6 +104,9 @@ void setMaterialUniforms(SCommonShaderProgram& shaderProgram, const Material mat
 void setDirectionalLightUniforms(SCommonShaderProgram& shaderProgram, const DirectionalLight light);
 
 void setSpotLightUniforms(SCommonShaderProgram& shaderProgram, const SpotLight light);
+
+void setPointLightUniforms(SCommonShaderProgram& shaderProgram, const PointLight light);
+
 
 void initializeShaderPrograms(SCommonShaderProgram& shaderProgram);
 
