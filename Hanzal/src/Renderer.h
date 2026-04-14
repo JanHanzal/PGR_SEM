@@ -12,6 +12,7 @@ class Renderer
 		{
 			SPHERE,
 			GHOUL,
+			MONKEY,
 			OBJECT_TYPE_SIZE
 		};
 
@@ -23,6 +24,14 @@ class Renderer
 		};
 		
 	private:
+
+		struct SpaceMonkey
+		{
+			GLuint vao = 0, vbo = 0, ebo = 0;
+			GLuint monkey_texture;
+		} spaceMonkey;
+		
+
 		std::vector<MeshGeometry*> geometry;
 		SCommonShaderProgram objectShader;
 
@@ -38,6 +47,11 @@ class Renderer
 		void loadMeshes();
 
 		void setUpLights();
+
+		void initSpaceMonkey();
+
+		void renderSpaceMonkey(const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
+			const glm::mat4& projectionMatrix);
 
 	public:
 		~Renderer();

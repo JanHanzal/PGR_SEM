@@ -13,7 +13,7 @@
 
 int WIN_WIDTH = 1920;
 int WIN_HEIGHT = 1080;
-const char * WIN_TITLE = "Hanzal Semestral Assignment";
+const char* WIN_TITLE = "Hanzal Semestral Assignment";
 
 float elapsedTime = 0.0f;
 
@@ -127,7 +127,23 @@ void onDisplay(void)
 
         o->renderObject(VP.viewMatrix, VP.projectionMatrix);
     }
-    
+
+    // SPACE MONKEY ===================================================
+    struct Transform transform = {
+        glm::vec3(20.0f, 0.0f, 0.0f),
+        glm::vec3(90.0f, 0.0f, 0.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f)
+    };
+
+    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), transform.position);
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(transform.scale));
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.x), { 1.0f, 0.0f, 0.0f });
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), { 0.0f, 0.0f, 1.0f });
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), { 0.0f, 1.0f, 0.0f });
+
+    renderer.renderObject(Renderer::MONKEY, modelMatrix, VP.viewMatrix, VP.projectionMatrix, false);
+    //=================================================================
+
     glutSwapBuffers();
 }
 
