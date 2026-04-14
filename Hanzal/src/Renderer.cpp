@@ -45,7 +45,7 @@ void Renderer::setUpLights()
 	pointLight = {
 		glm::vec3(0.0f),			// Position
 		
-		glm::vec3(0.5f),			// Ambient
+		glm::vec3(0.1f),			// Ambient
 		glm::vec3(1.0f),			// Diffuse
 		glm::vec3(0.5f),			// Specular
 
@@ -70,10 +70,12 @@ void Renderer::Init()
 	loadMeshes();
 }
 
-void Renderer::changeRenderingSun()
+void Renderer::changeActiveLightning()//ActiveLightning _activeLightning)
 {
-	renderSun = !renderSun;
+	activeLightning = static_cast<ActiveLightning>((activeLightning + 1) % 3);
+	//activeLightning = _activeLightning;
 }
+
 
 void Renderer::changeDirectionalLightParams(DirectionalLight newDirLight)
 {
@@ -84,6 +86,12 @@ void Renderer::changeSpotLightParams(SpotLight _spotLight)
 {
 	spotLight = _spotLight;
 }
+
+void Renderer::changePointLightParams(PointLight _pointLight)
+{
+	pointLight = _pointLight;
+}
+
 
 void Renderer::renderObject(ObjectType objectType,
 	const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
@@ -143,6 +151,7 @@ void Renderer::renderObject(ObjectType objectType, const Material material,
 	setSpotLightUniforms(objectShader, spotLight);
 	setPointLightUniforms(objectShader, pointLight);
 	
+	glUniform1i(objectShader.activeLightningLocation, static_cast<int>(activeLightning));
 
 	glBindVertexArray(mesh->vertexArrayObject);
 	glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_INT, 0);

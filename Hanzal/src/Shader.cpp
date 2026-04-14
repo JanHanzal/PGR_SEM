@@ -110,6 +110,8 @@ void initializeShaderPrograms(SCommonShaderProgram& shaderProgram)
 	shaderProgram.texSamplerLocation = glGetUniformLocation(shaderProgram.program, "texSampler");
 	shaderProgram.useTextureLocation = glGetUniformLocation(shaderProgram.program, "material.useTexture");
 
+
+	shaderProgram.activeLightningLocation = glGetUniformLocation(shaderProgram.program, "activeLightning");
 	//Light - Directional
 	shaderProgram.dl_positionLocation = glGetUniformLocation(shaderProgram.program, "directionalLight.position");
 	shaderProgram.dl_ambientLocation = glGetUniformLocation(shaderProgram.program, "directionalLight.ambient");

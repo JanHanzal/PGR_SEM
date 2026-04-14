@@ -14,6 +14,13 @@ class Renderer
 			GHOUL,
 			OBJECT_TYPE_SIZE
 		};
+
+		enum ActiveLightning
+		{
+			DIRECTIONAL,
+			SPOT,
+			POINT
+		};
 		
 	private:
 		std::vector<MeshGeometry*> geometry;
@@ -23,7 +30,7 @@ class Renderer
 		SpotLight spotLight;
 		PointLight pointLight;
 
-		bool renderSun = false;
+		ActiveLightning activeLightning = DIRECTIONAL;
 //=============================================================
 	private:
 		void shadersInit();
@@ -42,7 +49,9 @@ class Renderer
 
 		void changeSpotLightParams(SpotLight _spotLight);
 		
-		void changeRenderingSun();
+		void changePointLightParams(PointLight _pointLight);
+
+		void changeActiveLightning();//ActiveLightning _activeLightning);
 
 		void renderObject(ObjectType objectType,
 			const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,

@@ -1,5 +1,9 @@
 #version 140
 
+#define DIRECTIONAL 0
+#define SPOT 1
+#define POINT 2
+
 
 struct Material {
   vec3  ambient;
@@ -39,6 +43,8 @@ uniform mat4 Vmatrix;
 uniform Light directionalLight;
 uniform Light spotLight;
 uniform Light pointLight;
+
+uniform int activeLightning;
 
 
 out vec4 fragColor;
@@ -150,9 +156,22 @@ void main() {
   vec3 globalAmbientLight = vec3(0.0);
   vec3 outputColor = material.ambient * globalAmbientLight;
   
-  outputColor += getDirectionalLight(material, vertexPosition_v, N);
-  outputColor += getSpotLight(material, vertexPosition_v, N);
-  outputColor += getPointLight(material, vertexPosition_v, N);
+  switch(activeLightning)
+  {
+    case DIRECTIONAL:
+        outputColor += getDirectionalLight(material, vertexPosition_v, N);
+        break;
+    case SPOT:
+        outputColor += getSpotLight(material, vertexPosition_v, N);
+        break;
+    case POINT:
+        outputColor += getPointLight(material, vertexPosition_v, N);
+        break;
+    default:
+        outputColor += getDirectionalLight(material, vertexPosition_v, N);
+        break;
+  }
+  
 
   vec4 texColor = vec4(1.0);
   if (material.useTexture) 

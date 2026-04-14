@@ -269,17 +269,20 @@ void keyboardUpCallback(unsigned char keyReleased, int mouseX, int mouseY) {
 
 void keyboardSpecialCallback(int key, int x, int y) {
     switch (key) {
-    case GLUT_KEY_F1:
-        camera->changeCameraControl(Camera::LOCKED);
-        camera->changeCenterPoint(objects[0]->getPosition());
-        break;
-    case GLUT_KEY_F2:
-        camera->changeCameraControl(Camera::SPHERICAL);
-        camera->changeCenterPoint(objects[0]->getPosition());
-        break;
-    case GLUT_KEY_F3:
-        camera->changeCameraControl(Camera::FREE);
-        break;
+        case GLUT_KEY_F1:
+            camera->changeCameraControl(Camera::LOCKED);
+            camera->changeCenterPoint(objects[0]->getPosition());
+            break;
+        case GLUT_KEY_F2:
+            camera->changeCameraControl(Camera::SPHERICAL);
+            camera->changeCenterPoint(objects[0]->getPosition());
+            break;
+        case GLUT_KEY_F3:
+            camera->changeCameraControl(Camera::FREE);
+            break;
+        case GLUT_KEY_F4:
+            renderer.changeActiveLightning();
+            break;
     }
 }
 
