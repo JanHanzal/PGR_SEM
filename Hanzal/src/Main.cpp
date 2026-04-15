@@ -2,14 +2,8 @@
 #include "Object.h"
 #include "Mesh.h"
 #include "Shader.h"
-
-
-#define SCENE_WIDTH  1.0f
-#define SCENE_HEIGHT 1.0f
-#define NEAR  0.01f
-#define FAR  2000.0f
-
-#define FPS 60
+#include "Configuration.h"
+#include "Materials.h"
 
 int WIN_WIDTH = 1920;
 int WIN_HEIGHT = 1080;
@@ -37,65 +31,54 @@ bool _input[CONTROLS_LENGTH];
 
 void initApplication()
 {
+    initMaterials();
     renderer.Init();
-
-    for (bool& b : _input)
-        b = false;
+    
+    for (bool& button : _input)
+        button = false;
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
     
-    Transform t = {
-        glm::vec3(100.0f, 0.0f, 20.0f),
-        glm::vec3(0.0, 0.0f, 0.0f),
-        glm::vec3(1.0, 1.0f, 1.0f),
-    };
-    camera = new Camera(t, WIN_WIDTH, WIN_HEIGHT, NEAR, FAR);
+   
+    camera = new Camera({CAMERA_START_POSITION, CAMERA_START_ROTATION, glm::vec3(1.0)}, WIN_WIDTH, WIN_HEIGHT, CAMERA_NEAR, CAMERA_FAR);
     camera->changeCameraProjectionType(Camera::ProjectionType::PERSPECTIVE);
 }
 
 void sceneInit()
 {
-    GLuint earth_texture = pgr::createTexture("Data/Earth.jpg");
-    GLuint sun_texture = pgr::createTexture("Data/Sun.jpg");
-    Material mat = {
-       glm::vec3(1.0f, 1.0f, 1.0f),  // Ambient
-       glm::vec3(1.0f, 1.0f, 1.0f),  // Diffuse
-       glm::vec3(1.0f),              // Specular
-       0.0f,                         // Shininess
-       sun_texture
-    };
-
-    struct Transform t = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(90.0f, 0.0f, 12.0f),
-        glm::vec3(10.0f, 10.0f, 10.0f)
-    };
-
-    struct Transform t2 = {
-        glm::vec3(100.0f, 0.0f, 0.0f),
-        glm::vec3(90.0f, 0.0f, 0.0f),
-        glm::vec3(1.0f, 1.0f, 1.0f)
-    };
-
-    struct Transform t3 = {
-        glm::vec3(200.0f, 0.0f, 0.0f),
-        glm::vec3(90.0f, 0.0f, 0.0f),
-        glm::vec3(10.0f, 10.0f, 10.0f)
-    };
-
-    //Sun  =================================================================
-    Planet* p1 = new Planet(t,Renderer::SPHERE, mat, 10000.0, 0.0f, objects);
-    objects.push_back(p1);
-    //======================================================================
-
+    Planet* sun = new Planet(
+        {SUN_POSITION, SUN_ROTATION, SUN_SCALE},
+        Renderer::SPHERE, 
+        mat, 
+        SUN_MASS, 
+        0.0f, 
+        objects
+    );
+    objects.push_back(sun);
     mat.shininess = 8.0f;
     mat.texture = earth_texture;
-    Planet* p2 = new Planet(t2, Renderer::SPHERE, mat, 100.0f, 20.0f, objects);
-    objects.push_back(p2);
-    Planet* p3 = new Planet(t3, Renderer::SPHERE, mat, 10000.0, 20.0f, objects);
-    objects.push_back(p3);
+    
+    Planet* earth = new Planet(
+        {EARTH_POSITION, EARTH_ROTATION, EARTH_SCALE},
+        Renderer::SPHERE,
+        mat,
+        EARTH_MASS,
+        20.0f,
+        objects
+    );
+    objects.push_back(earth);
+
+    Planet* saturn = new Planet(
+        {SATURN_POSITION, SATURN_ROTATION, SATURN_SCALE},
+        Renderer::SPHERE,
+        mat,
+        SATURN_MASS,
+        20.0f, 
+        objects
+    );
+    objects.push_back(saturn);
 }
 
 
@@ -143,6 +126,7 @@ void onDisplay(void)
 
     renderer.renderObject(Renderer::MONKEY, modelMatrix, VP.viewMatrix, VP.projectionMatrix, false);
     //=================================================================
+    renderer.renderSkybox(VP.viewMatrix, VP.projectionMatrix);
 
     glutSwapBuffers();
 }
@@ -195,21 +179,15 @@ void timerCallback(int)
     //Camera Input==================================
     glm::vec3 cameraMotion = glm::vec3(0.0f);
 
-    if (_input[W])
-        cameraMotion += glm::vec3(1.0f, 0.0f, 0.0f);
-    if (_input[S])
-        cameraMotion += glm::vec3(-1.0f, 0.0f, 0.0f);
-    if (_input[D])
-        cameraMotion += glm::vec3(0.0f, 1.0f, 0.0f);
-    if (_input[A])
-        cameraMotion += glm::vec3(0.0f, -1.0f, 0.0f);
+    if (_input[W]) cameraMotion += glm::vec3(1.0f, 0.0f, 0.0f);
+    if (_input[S]) cameraMotion += glm::vec3(-1.0f, 0.0f, 0.0f);
+    if (_input[D]) cameraMotion += glm::vec3(0.0f, 1.0f, 0.0f);
+    if (_input[A]) cameraMotion += glm::vec3(0.0f, -1.0f, 0.0f);
     
     //Accent
-    if (_input[E])
-        cameraMotion += glm::vec3(0.0f, 0.0f, 1.0f);
+    if (_input[E]) cameraMotion += glm::vec3(0.0f, 0.0f, 1.0f);
     //Deccent
-    if (_input[Q])
-        cameraMotion += glm::vec3(0.0f, 0.0f, -1.0f);
+    if (_input[Q]) cameraMotion += glm::vec3(0.0f, 0.0f, -1.0f);
 
     camera->Move(cameraMotion , deltaTime);
     camera->Update(deltaTime);
@@ -350,8 +328,8 @@ int main(int argc, char** argv) {
     if (!pgr::initialize(pgr::OGL_VER_MAJOR, pgr::OGL_VER_MINOR))
         pgr::dieWithError("Pgr init failed, required OpenGL not supported?");
 
-    sceneInit();
     initApplication();
+    sceneInit();
     glutFullScreen();
     
 

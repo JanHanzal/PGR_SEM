@@ -14,7 +14,7 @@ typedef struct _MeshGeometry {
 
 } MeshGeometry;
 
-bool loadSingleMesh(const std::string& fileName, SCommonShaderProgram& shader, MeshGeometry** geometry);
+bool loadSingleMesh(const std::string& fileName, ObjectShader& shader, MeshGeometry** geometry);
 
 void cleanupGeometry(MeshGeometry* geometry);
 

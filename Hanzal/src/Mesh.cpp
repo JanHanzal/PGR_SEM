@@ -2,7 +2,7 @@
 #include "Mesh.h"
 #include "pgr.h"
 
-bool loadSingleMesh(const std::string& fileName, SCommonShaderProgram& shader, MeshGeometry** geometry) {
+bool loadSingleMesh(const std::string& fileName, ObjectShader& shader, MeshGeometry** geometry) {
     Assimp::Importer importer;
 
     // Unitize object in size (scale the model to fit into (-1..1)^3)

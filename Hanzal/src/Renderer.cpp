@@ -2,7 +2,8 @@
 
 void Renderer::shadersInit()
 {
-	initializeShaderPrograms(objectShader);
+	initializeObjectShaderProgram(objectShader);
+	initializeSkyboxShaderProgram(skyboxShader);
 }
 
 void Renderer::loadMeshes()
@@ -58,7 +59,7 @@ Renderer::~Renderer()
 {
 	for (MeshGeometry* mesh : geometry)
 	{
-			cleanupGeometry(mesh);
+		cleanupGeometry(mesh);
 	}
 	cleanupShaderPrograms(objectShader);
 }
@@ -69,30 +70,8 @@ void Renderer::Init()
 	setUpLights();
 	loadMeshes();
 	initSpaceMonkey();
+	initSkybox();
 }
-
-void Renderer::changeActiveLightning()//ActiveLightning _activeLightning)
-{
-	activeLightning = static_cast<ActiveLightning>((activeLightning + 1) % 3);
-	//activeLightning = _activeLightning;
-}
-
-
-void Renderer::changeDirectionalLightParams(DirectionalLight newDirLight)
-{
-	directionalLight = newDirLight;
-}
-
-void Renderer::changeSpotLightParams(SpotLight _spotLight)
-{
-	spotLight = _spotLight;
-}
-
-void Renderer::changePointLightParams(PointLight _pointLight)
-{
-	pointLight = _pointLight;
-}
-
 
 void Renderer::initSpaceMonkey()
 {
@@ -125,6 +104,86 @@ void Renderer::initSpaceMonkey()
 
 	spaceMonkey.monkey_texture = pgr::createTexture("Data/Sun.jpg");
 }
+
+void Renderer::initSkybox()
+{
+	skyBox = new MeshGeometry;
+
+	static const float screenCoords[] = {
+		-1.0f, -1.0f,
+		1.0f, -1.0f,
+		-1.0f, 1.0f,
+		1.0f, 1.0f,
+	};
+
+	glGenVertexArrays(1, &skyBox->vertexArrayObject);
+	glBindVertexArray(skyBox->vertexArrayObject);
+
+	glGenBuffers(1, &skyBox->vertexBufferObject);
+	glBindBuffer(GL_ARRAY_BUFFER, skyBox->vertexBufferObject);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(screenCoords), screenCoords, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(skyboxShader.screenCoordsLocation);
+	glVertexAttribPointer(skyboxShader.screenCoordsLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glBindVertexArray(0);
+	glUseProgram(0);
+	CHECK_GL_ERROR();
+
+	skyBox->numTriangles = 2;
+
+	glActiveTexture(GL_TEXTURE0);
+
+	glGenTextures(1, &skyBox->material.texture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skyBox->material.texture);
+
+	const char* names[] = {"px", "nx", "py", "ny", "pz", "nz"};
+	GLuint textures[] = {
+		GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+		GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+		GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+	};
+
+	for (int i = 0; i < 6; i++)
+	{
+		std::string path = std::string("Data/") + names[i] + ".jpg";
+		if (!pgr::loadTexImage2D(path, textures[i]))
+			pgr::dieWithError("Loading skybox failed!");
+	}
+
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	CHECK_GL_ERROR();
+}
+
+void Renderer::changeActiveLightning()//ActiveLightning _activeLightning)
+{
+	activeLightning = static_cast<ActiveLightning>((activeLightning + 1) % 3);
+	//activeLightning = _activeLightning;
+}
+
+
+void Renderer::changeDirectionalLightParams(DirectionalLight newDirLight)
+{
+	directionalLight = newDirLight;
+}
+
+void Renderer::changeSpotLightParams(SpotLight _spotLight)
+{
+	spotLight = _spotLight;
+}
+
+void Renderer::changePointLightParams(PointLight _pointLight)
+{
+	pointLight = _pointLight;
+}
+
 
 void Renderer::renderSpaceMonkey(const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
@@ -161,7 +220,6 @@ void Renderer::renderSpaceMonkey(const glm::mat4& modelMatrix, const glm::mat4& 
 	glBindVertexArray(0);
 	CHECK_GL_ERROR();
 }
-
 
 void Renderer::renderObject(ObjectType objectType,
 	const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
@@ -236,6 +294,32 @@ void Renderer::renderObject(ObjectType objectType, const Material material,
 
 	glBindVertexArray(mesh->vertexArrayObject);
 	glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_INT, 0);
+
+	glBindVertexArray(0);
+	glUseProgram(0);
+}
+
+void Renderer::renderSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
+{
+	glUseProgram(skyboxShader.program);
+
+	glm::mat4 rotationMatrix = {
+		viewMatrix[0],
+		viewMatrix[1],
+		viewMatrix[2],
+		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+	};
+
+	glm::mat4 inverseMatrix = glm::inverse(projectionMatrix * rotationMatrix);
+
+	glUniformMatrix4fv(skyboxShader.inversePVMatrixLocation, 1, GL_FALSE, glm::value_ptr(inverseMatrix));
+	glUniform1i(skyboxShader.skyboxSamplerLocation, 0);
+
+
+
+	glBindVertexArray(skyBox->vertexArrayObject);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skyBox->material.texture);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, skyBox->numTriangles + 2);
 
 	glBindVertexArray(0);
 	glUseProgram(0);

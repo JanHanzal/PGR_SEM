@@ -1,7 +1,7 @@
 #include "Shader.h"
 
 
-void setTransformUniforms(SCommonShaderProgram& shaderProgram, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
+void setTransformUniforms(ObjectShader& shaderProgram, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
 
 	const glm::mat4 PVM = projectionMatrix * viewMatrix * modelMatrix;
 	glUniformMatrix4fv(shaderProgram.PVMmatrixLocation, 1, GL_FALSE, glm::value_ptr(PVM));
@@ -20,7 +20,7 @@ void setTransformUniforms(SCommonShaderProgram& shaderProgram, const glm::mat4& 
 	glUniformMatrix4fv(shaderProgram.normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 }
 
-void setMaterialUniforms(SCommonShaderProgram& shaderProgram, const Material material)
+void setMaterialUniforms(ObjectShader& shaderProgram, const Material material)
 {
 	glUniform3fv(shaderProgram.diffuseLocation, 1, glm::value_ptr(material.diffuse));
 	glUniform3fv(shaderProgram.ambientLocation, 1, glm::value_ptr(material.ambient));
@@ -38,7 +38,7 @@ void setMaterialUniforms(SCommonShaderProgram& shaderProgram, const Material mat
 	}
 }
 
-void setDirectionalLightUniforms(SCommonShaderProgram& shaderProgram, const DirectionalLight light)
+void setDirectionalLightUniforms(ObjectShader& shaderProgram, const DirectionalLight light)
 {
 	glUniform3fv(shaderProgram.dl_positionLocation, 
 		1, 
@@ -54,7 +54,7 @@ void setDirectionalLightUniforms(SCommonShaderProgram& shaderProgram, const Dire
 	
 }
 
-void setSpotLightUniforms(SCommonShaderProgram& shaderProgram, const SpotLight light)
+void setSpotLightUniforms(ObjectShader& shaderProgram, const SpotLight light)
 {
 	float cutoff = std::min(60.0f, light.CutOff);
 	cutoff = std::max(0.0f, cutoff);
@@ -69,7 +69,7 @@ void setSpotLightUniforms(SCommonShaderProgram& shaderProgram, const SpotLight l
 	glUniform1f(shaderProgram.sl_exponentLocation, light.exponent);
 }
 
-void setPointLightUniforms(SCommonShaderProgram& shaderProgram, const PointLight light)
+void setPointLightUniforms(ObjectShader& shaderProgram, const PointLight light)
 {
 	glUniform3fv(shaderProgram.pl_positionLocation, 1, glm::value_ptr(light.position));
 	glUniform3fv(shaderProgram.pl_ambientLocation, 1, glm::value_ptr(light.ambient));
@@ -80,13 +80,13 @@ void setPointLightUniforms(SCommonShaderProgram& shaderProgram, const PointLight
 	glUniform1i(shaderProgram.pl_quadraticLocation, light.quadratic);
 }
 
-void initializeShaderPrograms(SCommonShaderProgram& shaderProgram) 
+void initializeObjectShaderProgram(ObjectShader& shaderProgram) 
 {
 
 	std::vector<GLuint> shaderList;
 
-	shaderList.push_back(pgr::createShaderFromFile(GL_VERTEX_SHADER, VERT_SHADER));
-	shaderList.push_back(pgr::createShaderFromFile(GL_FRAGMENT_SHADER, FRAG_SHADER));
+	shaderList.push_back(pgr::createShaderFromFile(GL_VERTEX_SHADER, OBJECT_VERT_SHADER));
+	shaderList.push_back(pgr::createShaderFromFile(GL_FRAGMENT_SHADER, OBJECT_FRAG_SHADER));
 
 
 	shaderProgram.program = pgr::createProgram(shaderList);
@@ -136,7 +136,24 @@ void initializeShaderPrograms(SCommonShaderProgram& shaderProgram)
 	shaderProgram.pl_quadraticLocation = glGetUniformLocation(shaderProgram.program, "pointLight.quadratic");
 }
 
-void cleanupShaderPrograms(SCommonShaderProgram& shaderProgram)
+void initializeSkyboxShaderProgram(SkyboxShader& skyboxShader)
+{
+	std::vector<GLuint> shaders;
+
+	shaders.push_back(pgr::createShaderFromFile(GL_VERTEX_SHADER, SKYBOX_VERT_SHADER));
+	shaders.push_back(pgr::createShaderFromFile(GL_FRAGMENT_SHADER, SKYBOX_FRAG_SHADER));
+	
+
+	skyboxShader.program = pgr::createProgram(shaders);
+	
+
+	skyboxShader.screenCoordsLocation = glGetAttribLocation(skyboxShader.program, "screenCoords");
+
+	skyboxShader.inversePVMatrixLocation = glGetUniformLocation(skyboxShader.program, "inversePVMatrix");
+	skyboxShader.skyboxSamplerLocation = glGetUniformLocation(skyboxShader.program, "skyboxSampler");
+}
+
+void cleanupShaderPrograms(ObjectShader& shaderProgram)
 {
 	pgr::deleteProgramAndShaders(shaderProgram.program);
 }

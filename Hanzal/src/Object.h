@@ -2,11 +2,11 @@
 #include "pgr_sem.h"
 #include "Mesh.h"
 #include "Shader.h"
+#include "Configuration.h"
+
 
 #ifndef __OBJECT_H
 #define __OBJECT_H
-
-#define G 10
 
 class Object
 {

@@ -33,7 +33,10 @@ class Renderer
 		
 
 		std::vector<MeshGeometry*> geometry;
-		SCommonShaderProgram objectShader;
+		MeshGeometry* skyBox = nullptr;
+
+		ObjectShader objectShader;
+		SkyboxShader skyboxShader;
 
 		DirectionalLight directionalLight;
 		SpotLight spotLight;
@@ -53,11 +56,14 @@ class Renderer
 		void renderSpaceMonkey(const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
 			const glm::mat4& projectionMatrix);
 
+		void initSkybox();
+
 	public:
 		~Renderer();
 
 		void Init();
 
+		
 
 		void changeDirectionalLightParams(DirectionalLight newDirLight);
 
@@ -74,6 +80,8 @@ class Renderer
 		void renderObject(ObjectType objectType, const Material material,
 			const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
 			const glm::mat4& projectionMatrix, bool wireframed);
+
+		void renderSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix);
 };
 
 #endif

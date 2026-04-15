@@ -1,12 +1,13 @@
-#include "pgr.h"
+
 
 #ifndef __SHADER_H
 #define __SHADER_H
 
+#include "pgr.h"
+#include "ShadersConfiguration.h"
+
 extern float elapsedTime;
 
-#define VERT_SHADER "Shaders/defaultShader.vert"
-#define FRAG_SHADER "Shaders/defaultShader.frag"
 
 //============================================
 struct DirectionalLight {
@@ -97,21 +98,34 @@ typedef struct _commonShaderProgram {
 	GLint pl_radiusLocation;
 	GLint pl_quadraticLocation;
 
-} SCommonShaderProgram;
+} ObjectShader;
 
-void setTransformUniforms(SCommonShaderProgram& shaderProgram, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
+typedef struct SkyboxShader
+{
+	GLuint program;
 
-void setMaterialUniforms(SCommonShaderProgram& shaderProgram, const Material material);
+	GLuint screenCoordsLocation;
 
-void setDirectionalLightUniforms(SCommonShaderProgram& shaderProgram, const DirectionalLight light);
+	GLuint inversePVMatrixLocation;
+	GLuint skyboxSamplerLocation;;
+};
 
-void setSpotLightUniforms(SCommonShaderProgram& shaderProgram, const SpotLight light);
+void setTransformUniforms(ObjectShader& shaderProgram, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
 
-void setPointLightUniforms(SCommonShaderProgram& shaderProgram, const PointLight light);
+void setMaterialUniforms(ObjectShader& shaderProgram, const Material material);
+
+void setDirectionalLightUniforms(ObjectShader& shaderProgram, const DirectionalLight light);
+
+void setSpotLightUniforms(ObjectShader& shaderProgram, const SpotLight light);
+
+void setPointLightUniforms(ObjectShader& shaderProgram, const PointLight light);
 
 
-void initializeShaderPrograms(SCommonShaderProgram& shaderProgram);
+void initializeObjectShaderProgram(ObjectShader& shaderProgram);
 
-void cleanupShaderPrograms(SCommonShaderProgram& shaderProgram);
+void initializeSkyboxShaderProgram(SkyboxShader& skyboxShader);
+
+
+void cleanupShaderPrograms(ObjectShader& shaderProgram);
 
 #endif
