@@ -43,39 +43,44 @@ void initApplication()
     
    
     camera = new Camera({CAMERA_START_POSITION, CAMERA_START_ROTATION, glm::vec3(1.0)}, WIN_WIDTH, WIN_HEIGHT, CAMERA_NEAR, CAMERA_FAR);
-    camera->changeCameraProjectionType(Camera::ProjectionType::PERSPECTIVE);
 }
 
 void sceneInit()
 {
     Planet* sun = new Planet(
         {SUN_POSITION, SUN_ROTATION, SUN_SCALE},
-        Renderer::SPHERE, 
-        mat, 
-        SUN_MASS, 
-        0.0f, 
+        Renderer::SPHERE,
+        mat,
+        SUN_MASS,
+        0.0f,
+        true,
         objects
     );
     objects.push_back(sun);
+
+
     mat.shininess = 8.0f;
     mat.texture = earth_texture;
     
     Planet* earth = new Planet(
-        {EARTH_POSITION, EARTH_ROTATION, EARTH_SCALE},
+        { EARTH_POSITION, EARTH_ROTATION, EARTH_SCALE },
         Renderer::SPHERE,
         mat,
         EARTH_MASS,
-        20.0f,
+        100.0f,
+        false,
         objects
     );
     objects.push_back(earth);
 
+    mat.texture = saturn_texture;
     Planet* saturn = new Planet(
         {SATURN_POSITION, SATURN_ROTATION, SATURN_SCALE},
         Renderer::SPHERE,
         mat,
         SATURN_MASS,
-        20.0f, 
+        50.0f, 
+        false,
         objects
     );
     objects.push_back(saturn);
@@ -86,8 +91,11 @@ void onDisplay(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ViewProjectionMatrix VP = camera->getVPMatrixes();
     
+    ViewProjectionMatrix VP = camera->getVPMatrixes();
+
+    renderer.renderSkybox(VP.viewMatrix, VP.projectionMatrix);
+
     //==================================
     SpotLight sl = {
         camera->getPosition(),
@@ -105,7 +113,7 @@ void onDisplay(void)
 
     for (Planet* o : objects)
     {
-        if (objects[1] == o && camera->getCameraControlType() == Camera::LOCKED)
+        if (objects[EARTH] == o && camera->getCameraControlType() == Camera::LOCKED)
             continue;
 
         o->renderObject(VP.viewMatrix, VP.projectionMatrix);
@@ -126,8 +134,7 @@ void onDisplay(void)
 
     renderer.renderObject(Renderer::MONKEY, modelMatrix, VP.viewMatrix, VP.projectionMatrix, false);
     //=================================================================
-    renderer.renderSkybox(VP.viewMatrix, VP.projectionMatrix);
-
+    
     glutSwapBuffers();
 }
 
@@ -139,10 +146,12 @@ void lateWorldUpdate(float deltaTime)
         case Camera::FREE:
             break;
         case Camera::LOCKED:
-            camera->setPosition(objects[1]->getPosition() + glm::vec3(0.0, 0.0, 0.0));
+            camera->setPosition(objects[EARTH]->getPosition());
+            camera->changeCenterPoint(objects[SUN]->getPosition());
             break;
         case Camera::SPHERICAL:
-            camera->setPosition(objects[0]->getPosition() - spherePosition);
+            camera->setPosition(objects[SUN]->getPosition() - spherePosition);
+            camera->changeCenterPoint(objects[SUN]->getPosition());
             break;
         default:
             break;
@@ -265,11 +274,9 @@ void keyboardSpecialCallback(int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_F1:
             camera->changeCameraControl(Camera::LOCKED);
-            camera->changeCenterPoint(objects[0]->getPosition());
             break;
         case GLUT_KEY_F2:
             camera->changeCameraControl(Camera::SPHERICAL);
-            camera->changeCenterPoint(objects[0]->getPosition());
             break;
         case GLUT_KEY_F3:
             camera->changeCameraControl(Camera::FREE);

@@ -39,21 +39,28 @@ void Object::renderObject(const glm::mat4& viewMatrix, const glm::mat4& projecti
 }
 
 
-Planet::Planet(Transform _transform, Renderer::ObjectType _objectType, Material material, float _mass, float _speed, const std::vector<Planet*>& _orbitPlanet) :
-    Object(_transform, _objectType, material), mass(_mass), orbitPlanet(_orbitPlanet), speed(_speed)
+Planet::Planet(Transform _transform, Renderer::ObjectType _objectType, Material material, float _mass, float _speed, bool _isSun, const std::vector<Planet*>& _planets) :
+    Object(_transform, _objectType, material), mass(_mass), speed(_speed), isSun(_isSun), planets(_planets)
 {
     velocity = glm::cross(glm::vec3(WORLD_UP_VECTOR), transform.position);
     if(glm::length(velocity) > 0)
         velocity = glm::normalize(velocity) * speed;
 }
 
+
 void Planet::Update(float timeDelta)
 {
-    for (Planet* p : orbitPlanet)
+    if (isSun)
+        return;
+    
+    for (Planet* planet : planets)
     {
-        glm::vec3 dir = p->getPosition() - transform.position;
+        if (planet == this)
+            continue;
+
+        glm::vec3 dir = planet->getPosition() - transform.position;
         float radius = glm::length(dir);
-        float acceleration = getAcceleration(p->getMass(), radius);
+        float acceleration = getAcceleration(planet->getMass(), radius);
         glm::vec3 accelerationVector = glm::normalize(dir) * acceleration;
         velocity += accelerationVector * timeDelta;
     }
@@ -64,8 +71,10 @@ void Planet::Update(float timeDelta)
     Rotate(rotationVector * timeDelta);
 }
 
-float Planet::getAcceleration(const int mass, const float radius)
+float Planet::getAcceleration(const float mass, const float radius)
 {
+    if (radius <= transform.scale.x)
+        return G * mass;
     float acceleration = G * mass / pow(radius, 2);
     return acceleration;
 }

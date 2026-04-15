@@ -1,12 +1,12 @@
+#ifndef __OBJECT_H
+#define __OBJECT_H
+
 #include <iostream>
 #include "pgr_sem.h"
 #include "Mesh.h"
 #include "Shader.h"
 #include "Configuration.h"
 
-
-#ifndef __OBJECT_H
-#define __OBJECT_H
 
 class Object
 {
@@ -35,14 +35,16 @@ class Planet : public Object
 {
     private:
         float mass;
-        const std::vector<Planet *> orbitPlanet;
+        const std::vector<Planet *>& planets;
         float speed = 20.0f;
+        bool isSun;
 
     public:
-        Planet(Transform _transform, Renderer::ObjectType _objectType, Material material, float _mass, float _speed, const std::vector<Planet*>& _orbitPlanet);
+        Planet(Transform _transform, Renderer::ObjectType _objectType, Material material, float _mass, float _speed, bool _isSun, const std::vector<Planet*>& _planets);
+        
         void Update(float timeDelta);
 
-        float getAcceleration(const int mass, const float radius);
+        float getAcceleration(const float mass, const float radius);
 
         float getMass();
 };

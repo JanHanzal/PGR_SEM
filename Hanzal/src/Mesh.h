@@ -1,8 +1,9 @@
+#ifndef __MESH_H
+#define __MESH_H
+
 #include "pgr.h"
 #include "Shader.h"
 
-#ifndef __MESH_H
-#define __MESH_H
 
 typedef struct _MeshGeometry {
 	GLuint        vertexBufferObject;   // identifier for the vertex buffer object

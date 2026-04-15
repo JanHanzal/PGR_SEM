@@ -22,14 +22,14 @@
 #define SUN_POSITION glm::vec3(0.0)
 #define SUN_ROTATION glm::vec3(90.0f, 0.0f, 0.0f)
 #define SUN_SCALE glm::vec3(10.0)
-#define SUN_MASS 10000.0
+#define SUN_MASS 1000000.0
 
-#define EARTH_POSITION glm::vec3(180.0f, 0.0f, 0.0f)
+#define EARTH_POSITION glm::vec3(-500.0f, 0.0f, 0.0f)
 #define EARTH_ROTATION glm::vec3(90.0f, 0.0f, 0.0f)
-#define EARTH_SCALE glm::vec3(1.0f)
-#define EARTH_MASS 100.0
+#define EARTH_SCALE glm::vec3(2.0f)
+#define EARTH_MASS 500.0
 
-#define SATURN_POSITION glm::vec3(200.0f, 0.0f, 0.0f)
+#define SATURN_POSITION glm::vec3(500.0f, 0.0f, 0.0f)
 #define SATURN_ROTATION glm::vec3(90.0f, 0.0f, 0.0f)
 #define SATURN_SCALE glm::vec3(5.0f)
 #define SATURN_MASS 10000.0

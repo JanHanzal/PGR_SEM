@@ -1,8 +1,10 @@
-#include "pgr.h"
-#include "Renderer.h"
+
 
 #ifndef __PGR_SEM_H
 #define __PGR_SEM_H
+
+#include "pgr.h"
+#include "Renderer.h"
 
 extern Renderer renderer;
 

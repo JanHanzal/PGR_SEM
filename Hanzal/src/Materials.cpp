@@ -18,6 +18,7 @@ void createTextures()
 {
 	sun_texture = pgr::createTexture(SUN_TEXTURE_PATH);
 	earth_texture = pgr::createTexture(EARTH_TEXTURE_PATH);
+	saturn_texture = pgr::createTexture(SATURN_TEXTURE_PATH);
 }
 
 void initMaterials()
