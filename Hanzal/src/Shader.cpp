@@ -1,13 +1,15 @@
 #include "Shader.h"
 
 
-void setTransformUniforms(ObjectShader& shaderProgram, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
+void setTransformUniforms(ObjectShader& shaderProgram, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, bool movingTexture)
+{
 
 	const glm::mat4 PVM = projectionMatrix * viewMatrix * modelMatrix;
 	glUniformMatrix4fv(shaderProgram.PVMmatrixLocation, 1, GL_FALSE, glm::value_ptr(PVM));
-
+	
 	glUniformMatrix4fv(shaderProgram.VmatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glUniformMatrix4fv(shaderProgram.MmatrixLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
 
 	const glm::mat4 modelRotationMatrix = glm::mat4(
 		modelMatrix[0],
@@ -16,8 +18,20 @@ void setTransformUniforms(ObjectShader& shaderProgram, const glm::mat4& modelMat
 		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
 	);
 	const glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelRotationMatrix));
-
 	glUniformMatrix4fv(shaderProgram.normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+
+
+
+	
+	glm::mat4 textureMatrix = glm::mat4(1.0f);
+	// Change texture transformation here ========================================================
+	if (movingTexture)
+	{
+		textureMatrix = glm::translate(textureMatrix, glm::vec3(0.05f * elapsedTime, 0.05f * elapsedTime, 0.0f));
+		textureMatrix = glm::scale(textureMatrix, glm::vec3(1.0f, 1.0f, 1.0f));
+	}
+	//============================================================================================
+	glUniformMatrix4fv(shaderProgram.textureMatrixLocation, 1, GL_FALSE, glm::value_ptr(textureMatrix));
 }
 
 void setMaterialUniforms(ObjectShader& shaderProgram, const Material material)
@@ -106,11 +120,12 @@ void initializeObjectShaderProgram(ObjectShader& shaderProgram)
 	shaderProgram.specularLocation = glGetUniformLocation(shaderProgram.program, "material.specular");
 	shaderProgram.shininessLocation = glGetUniformLocation(shaderProgram.program, "material.shininess");
 
-	// texture
+	// Texture
 	shaderProgram.texSamplerLocation = glGetUniformLocation(shaderProgram.program, "texSampler");
 	shaderProgram.useTextureLocation = glGetUniformLocation(shaderProgram.program, "material.useTexture");
+	shaderProgram.textureMatrixLocation = glGetUniformLocation(shaderProgram.program, "textureMatrix");
 
-
+	shaderProgram.isObjectSunLocation = glGetUniformLocation(shaderProgram.program, "isObjectSun");
 	shaderProgram.activeLightningLocation = glGetUniformLocation(shaderProgram.program, "activeLightning");
 	//Light - Directional
 	shaderProgram.dl_positionLocation = glGetUniformLocation(shaderProgram.program, "directionalLight.position");

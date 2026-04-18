@@ -3,43 +3,9 @@
 
 #include "pgr.h"
 #include "ShadersConfiguration.h"
+#include "Light.h"
 
 extern float elapsedTime;
-
-
-//============================================
-struct DirectionalLight {
-	glm::vec3  position;
-	glm::vec3  ambient;
-	glm::vec3  diffuse;
-	glm::vec3  specular;
-};
-
-struct SpotLight {
-	glm::vec3  position;
-	glm::vec3 diretion;
-
-	glm::vec3  ambient;
-	glm::vec3  diffuse;
-	glm::vec3  specular;
-
-	//SpotLight
-	float CutOff;	// In degrees
-	float exponent;
-};
-
-struct PointLight {
-	glm::vec3  position;
-
-	glm::vec3  ambient;
-	glm::vec3  diffuse;
-	glm::vec3  specular;
-
-	//PointLight params
-	float radius;		
-	bool quadratic;		// Is fading quadratic?
-};
-//============================================
 
 struct Material
 {
@@ -50,7 +16,7 @@ struct Material
 	GLuint        texture;
 };
 
-typedef struct _commonShaderProgram {
+typedef struct _objectShaderProgram {
 	GLuint program;          
 	
 	GLint posLocation;       
@@ -69,11 +35,13 @@ typedef struct _commonShaderProgram {
 	GLint specularLocation;   
 	GLint shininessLocation;  
 	
-	// texture
+	// Texture
 	GLint useTextureLocation;
 	GLint texSamplerLocation;
+	GLint textureMatrixLocation;
 	
 
+	GLint isObjectSunLocation;
 	GLint activeLightningLocation;
 	//Light - Directional, Spot, Point
 	GLint dl_positionLocation;
@@ -108,7 +76,7 @@ typedef struct SkyboxShader
 	GLuint skyboxSamplerLocation;;
 };
 
-void setTransformUniforms(ObjectShader& shaderProgram, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
+void setTransformUniforms(ObjectShader& shaderProgram, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, bool movingTexture);
 
 void setMaterialUniforms(ObjectShader& shaderProgram, const Material material);
 

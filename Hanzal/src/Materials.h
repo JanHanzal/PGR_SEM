@@ -10,7 +10,7 @@ extern GLuint sun_texture;
 extern GLuint earth_texture;
 extern GLuint saturn_texture;
 
-extern Material mat;
+extern Material default_planet_material;
 
 void initMaterials();
 void createTextures();

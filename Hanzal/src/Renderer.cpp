@@ -197,7 +197,8 @@ void Renderer::renderSpaceMonkey(const glm::mat4& modelMatrix, const glm::mat4& 
 		objectShader,
 		modelMatrix,
 		viewMatrix,
-		projectionMatrix
+		projectionMatrix,
+		false
 	);
 	
 	
@@ -222,8 +223,8 @@ void Renderer::renderSpaceMonkey(const glm::mat4& modelMatrix, const glm::mat4& 
 }
 
 void Renderer::renderObject(ObjectType objectType,
-	const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
-	const glm::mat4& projectionMatrix, bool wireframed)
+	const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,const glm::mat4& projectionMatrix,
+	bool wireframed, bool movingTexture, bool isObjectSun)
 {
 	if (objectType == OBJECT_TYPE_SIZE)
 		return;
@@ -242,7 +243,8 @@ void Renderer::renderObject(ObjectType objectType,
 		objectShader,
 		modelMatrix,
 		viewMatrix,
-		projectionMatrix
+		projectionMatrix,
+		movingTexture
 	);
 
 	setMaterialUniforms(objectShader, mesh->material);
@@ -250,6 +252,7 @@ void Renderer::renderObject(ObjectType objectType,
 	setSpotLightUniforms(objectShader, spotLight);
 	setPointLightUniforms(objectShader, pointLight);
 
+	glUniform1i(objectShader.isObjectSunLocation, isObjectSun);
 
 	if (wireframed)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -265,8 +268,8 @@ void Renderer::renderObject(ObjectType objectType,
 }
 
 void Renderer::renderObject(ObjectType objectType, const Material material,
-	const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
-	const glm::mat4& projectionMatrix, bool wireframed)
+	const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix,
+	bool wireframed, bool movingTexture, bool isObjectSun)
 {
 	if (objectType == OBJECT_TYPE_SIZE)
 		return;
@@ -278,14 +281,20 @@ void Renderer::renderObject(ObjectType objectType, const Material material,
 
 	const MeshGeometry* mesh = geometry[objectType];
 
-	setTransformUniforms(objectShader, modelMatrix, viewMatrix, projectionMatrix);
-	setMaterialUniforms(objectShader, material);
+	setTransformUniforms(objectShader, 
+		modelMatrix, 
+		viewMatrix, 
+		projectionMatrix, 
+		movingTexture
+	);
 
+	setMaterialUniforms(objectShader, material);
 	setDirectionalLightUniforms(objectShader, directionalLight);
 	setSpotLightUniforms(objectShader, spotLight);
 	setPointLightUniforms(objectShader, pointLight);
 
 	glUniform1i(objectShader.activeLightningLocation, static_cast<int>(activeLightning));
+	glUniform1i(objectShader.isObjectSunLocation, isObjectSun);
 
 	if (wireframed)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

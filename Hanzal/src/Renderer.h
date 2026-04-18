@@ -63,7 +63,6 @@ class Renderer
 
 		void Init();
 
-		
 
 		void changeDirectionalLightParams(DirectionalLight newDirLight);
 
@@ -74,12 +73,12 @@ class Renderer
 		void changeActiveLightning();//ActiveLightning _activeLightning);
 
 		void renderObject(ObjectType objectType,
-			const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
-			const glm::mat4& projectionMatrix, bool wireframed);
+			const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix,
+			bool wireframed, bool movingTexture, bool isObjectSun);
 
 		void renderObject(ObjectType objectType, const Material material,
-			const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
-			const glm::mat4& projectionMatrix, bool wireframed);
+			const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix,
+			bool wireframed, bool movingTexture, bool isObjectSun);
 
 		void renderSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix);
 };

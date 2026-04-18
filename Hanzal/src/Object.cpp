@@ -35,7 +35,11 @@ void Object::renderObject(const glm::mat4& viewMatrix, const glm::mat4& projecti
     modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), { 0.0f, 0.0f, 1.0f });
     modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), { 0.0f, 1.0f, 0.0f });
     
-    renderer.renderObject(objectType, material, modelMatrix, viewMatrix, projectionMatrix, false);
+    bool wireframed = false;
+    bool movingTexture = false;
+    bool isObjectSun = false;
+
+    renderer.renderObject(objectType, material, modelMatrix, viewMatrix, projectionMatrix, wireframed, movingTexture, isObjectSun);
 }
 
 
@@ -69,6 +73,20 @@ void Planet::Update(float timeDelta)
 
     glm::vec3 rotationVector = glm::vec3(0.0f, 30.0f, 0.0f);
     Rotate(rotationVector * timeDelta);
+}
+
+void Planet::renderObject(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+{
+    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), transform.position);
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(transform.scale));
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.x), { 1.0f, 0.0f, 0.0f });
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), { 0.0f, 0.0f, 1.0f });
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), { 0.0f, 1.0f, 0.0f });
+
+    bool wireframed = false;
+    bool movingTexture = isSun;
+
+    renderer.renderObject(objectType, material, modelMatrix, viewMatrix, projectionMatrix, wireframed, movingTexture, isSun);
 }
 
 float Planet::getAcceleration(const float mass, const float radius)

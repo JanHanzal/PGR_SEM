@@ -44,6 +44,8 @@ class Planet : public Object
         
         void Update(float timeDelta);
 
+        void renderObject(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
+
         float getAcceleration(const float mass, const float radius);
 
         float getMass();

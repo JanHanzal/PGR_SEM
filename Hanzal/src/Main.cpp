@@ -4,6 +4,7 @@
 #include "Shader.h"
 #include "Configuration.h"
 #include "Materials.h"
+#include "Spline.h"
 
 int WIN_WIDTH = 1920;
 int WIN_HEIGHT = 1080;
@@ -14,7 +15,9 @@ float elapsedTime = 0.0f;
 std::vector<Planet*> objects;
 Renderer renderer;
 Camera* camera;
+Spline* spline;
 
+PlanetsOrder follow_planet = PlanetsOrder::SUN;
 
 enum Controls
 {
@@ -41,16 +44,17 @@ void initApplication()
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
     
-   
+    spline = new Spline(glm::vec3(150.0, 0.0, -50.0), glm::vec3(0.0, 150.0, 50.0), glm::vec3(-150.0, 0.0, -50.0), glm::vec3(0.0, -150.0, 50.0));
+    
     camera = new Camera({CAMERA_START_POSITION, CAMERA_START_ROTATION, glm::vec3(1.0)}, WIN_WIDTH, WIN_HEIGHT, CAMERA_NEAR, CAMERA_FAR);
 }
 
-void sceneInit()
+void initScene()
 {
     Planet* sun = new Planet(
         {SUN_POSITION, SUN_ROTATION, SUN_SCALE},
         Renderer::SPHERE,
-        mat,
+        default_planet_material,
         SUN_MASS,
         0.0f,
         true,
@@ -59,13 +63,13 @@ void sceneInit()
     objects.push_back(sun);
 
 
-    mat.shininess = 8.0f;
-    mat.texture = earth_texture;
+    default_planet_material.shininess = 8.0f;
+    default_planet_material.texture = earth_texture;
     
     Planet* earth = new Planet(
         { EARTH_POSITION, EARTH_ROTATION, EARTH_SCALE },
         Renderer::SPHERE,
-        mat,
+        {default_planet_material, },
         EARTH_MASS,
         100.0f,
         false,
@@ -73,11 +77,11 @@ void sceneInit()
     );
     objects.push_back(earth);
 
-    mat.texture = saturn_texture;
+    default_planet_material.texture = saturn_texture;
     Planet* saturn = new Planet(
         {SATURN_POSITION, SATURN_ROTATION, SATURN_SCALE},
         Renderer::SPHERE,
-        mat,
+        default_planet_material,
         SATURN_MASS,
         50.0f, 
         false,
@@ -96,20 +100,22 @@ void onDisplay(void)
 
     renderer.renderSkybox(VP.viewMatrix, VP.projectionMatrix);
 
-    //==================================
-    SpotLight sl = {
-        camera->getPosition(),
-        camera->getFrontVector(),
+    //Dynamic spotlight position ======================================
+    {
+        SpotLight sl = {
+            camera->getPosition(),
+            camera->getFrontVector(),
 
-        glm::vec3(0.1f),
-        glm::vec3(1.0f, 0.0f, 0.0f),
-        glm::vec3(0.5f),
+            glm::vec3(0.1f),
+            glm::vec3(1.0f, 0.0f, 0.0f),
+            glm::vec3(0.5f),
 
-        10.0f,
-        1.0f
-    };
-    renderer.changeSpotLightParams(sl);
-    //==================================
+            10.0f,
+            1.0f
+        };
+        renderer.changeSpotLightParams(sl);
+    }
+    //=================================================================
 
     for (Planet* o : objects)
     {
@@ -120,19 +126,26 @@ void onDisplay(void)
     }
 
     // SPACE MONKEY ===================================================
-    struct Transform transform = {
-        glm::vec3(20.0f, 0.0f, 0.0f),
-        glm::vec3(90.0f, 0.0f, 0.0f),
-        glm::vec3(1.0f, 1.0f, 1.0f)
-    };
+    {
+        auto t = fmod(elapsedTime, 5.0) / 5.0;
 
-    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), transform.position);
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(transform.scale));
-    modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.x), { 1.0f, 0.0f, 0.0f });
-    modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), { 0.0f, 0.0f, 1.0f });
-    modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), { 0.0f, 1.0f, 0.0f });
+        struct Transform transform = {
+            spline->get_Position_Catmull_Rom(t),
+            glm::vec3(90.0f, 0.0f, 0.0f),
+            glm::vec3(1.0f, 1.0f, 1.0f)
+        };
 
-    renderer.renderObject(Renderer::MONKEY, modelMatrix, VP.viewMatrix, VP.projectionMatrix, false);
+        glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), transform.position);
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(transform.scale));
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.x), { 1.0f, 0.0f, 0.0f });
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), { 0.0f, 0.0f, 1.0f });
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), { 0.0f, 1.0f, 0.0f });
+
+        bool wireframed = false;
+        bool movingTexture = false;
+        bool isObjectSun = false;
+        renderer.renderObject(Renderer::MONKEY, modelMatrix, VP.viewMatrix, VP.projectionMatrix, wireframed, movingTexture, isObjectSun);
+    }
     //=================================================================
     
     glutSwapBuffers();
@@ -141,6 +154,9 @@ void onDisplay(void)
 void lateWorldUpdate(float deltaTime)
 {
     glm::vec3 spherePosition = camera->getRadius() * camera->getSpherePosition();
+
+    auto t = fmod(elapsedTime, 5) / 5.0;
+
     switch (camera->getCameraControlType())
     {
         case Camera::FREE:
@@ -150,8 +166,8 @@ void lateWorldUpdate(float deltaTime)
             camera->changeCenterPoint(objects[SUN]->getPosition());
             break;
         case Camera::SPHERICAL:
-            camera->setPosition(objects[SUN]->getPosition() - spherePosition);
-            camera->changeCenterPoint(objects[SUN]->getPosition());
+            camera->setPosition(objects[follow_planet]->getPosition() - spherePosition);
+            camera->changeCenterPoint(objects[follow_planet]->getPosition());
             break;
         default:
             break;
@@ -336,7 +352,7 @@ int main(int argc, char** argv) {
         pgr::dieWithError("Pgr init failed, required OpenGL not supported?");
 
     initApplication();
-    sceneInit();
+    initScene();
     glutFullScreen();
     
 
@@ -346,6 +362,7 @@ int main(int argc, char** argv) {
   
 
     delete camera;
+    delete spline;
     for (Planet* p : objects)
         delete p;
     return 0;

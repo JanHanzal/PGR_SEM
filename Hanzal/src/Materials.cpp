@@ -1,7 +1,7 @@
 #include "Materials.h"
 
 
-#define SUN_TEXTURE_PATH "Data/Sun.jpg"
+#define SUN_TEXTURE_PATH "Data/Sun2.jpg"
 #define EARTH_TEXTURE_PATH "Data/Earth.jpg"
 #define SATURN_TEXTURE_PATH "Data/Saturn.jpg"
 
@@ -12,7 +12,7 @@ GLuint saturn_texture;
 
 
 //Materials
-Material mat;
+Material default_planet_material;
 
 void createTextures()
 {
@@ -26,10 +26,10 @@ void initMaterials()
 	createTextures();
 
 
-	mat.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
-	mat.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-	mat.specular = glm::vec3(1.0f);
-	mat.shininess = 0.0f;
-	mat.texture = sun_texture;
+	default_planet_material.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+	default_planet_material.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	default_planet_material.specular = glm::vec3(1.0f);
+	default_planet_material.shininess = 0.0f;
+	default_planet_material.texture = sun_texture;
 
 }

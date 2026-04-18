@@ -35,6 +35,7 @@ smooth in vec3 vertexPosition_v;
 smooth in vec3 vertexNormal_v;
 smooth in vec2 texCoord_v;
 
+uniform bool isObjectSun;
 
 uniform sampler2D texSampler;
 uniform Material material;
@@ -156,22 +157,28 @@ void main() {
   vec3 globalAmbientLight = vec3(0.0);
   vec3 outputColor = material.ambient * globalAmbientLight;
   
-  switch(activeLightning)
+  if(!isObjectSun || activeLightning != POINT)
   {
-    case DIRECTIONAL:
-        outputColor += getDirectionalLight(material, vertexPosition_v, N);
-        break;
-    case SPOT:
-        outputColor += getSpotLight(material, vertexPosition_v, N);
-        break;
-    case POINT:
-        outputColor += getPointLight(material, vertexPosition_v, N);
-        break;
-    default:
-        outputColor += getDirectionalLight(material, vertexPosition_v, N);
-        break;
+    switch(activeLightning)
+    {
+      case DIRECTIONAL:
+          outputColor += getDirectionalLight(material, vertexPosition_v, N);
+          break;
+      case SPOT:
+          outputColor += getSpotLight(material, vertexPosition_v, N);
+          break;
+      case POINT:
+          outputColor += getPointLight(material, vertexPosition_v, N);
+          break;
+      default:
+          outputColor += getDirectionalLight(material, vertexPosition_v, N);
+          break;
+    }
   }
-  
+  else
+  {
+    outputColor = vec3(1.0);
+  }
 
   vec4 texColor = vec4(1.0);
   if (material.useTexture) 
