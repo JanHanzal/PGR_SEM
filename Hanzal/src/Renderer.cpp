@@ -185,7 +185,7 @@ void Renderer::changePointLightParams(PointLight _pointLight)
 }
 
 
-void Renderer::renderSpaceMonkey(const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+void Renderer::renderSpaceMonkey(Material material, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
 	glUseProgram(objectShader.program);
 	
@@ -201,16 +201,8 @@ void Renderer::renderSpaceMonkey(const glm::mat4& modelMatrix, const glm::mat4& 
 		false
 	);
 	
-	
-	Material mat = {
-	   glm::vec3(1.0f, 1.0f, 1.0f),  // Ambient
-	   glm::vec3(1.0f, 1.0f, 1.0f),  // Diffuse
-	   glm::vec3(1.0f),              // Specular
-	   0.0f,                         // Shininess
-	   NULL
-	};
 
-	setMaterialUniforms(objectShader, mat);
+	setMaterialUniforms(objectShader, material);
 	setDirectionalLightUniforms(objectShader, directionalLight);
 	setSpotLightUniforms(objectShader, spotLight);
 	setPointLightUniforms(objectShader, pointLight);
@@ -231,7 +223,15 @@ void Renderer::renderObject(ObjectType objectType,
 	
 	if (objectType == MONKEY)
 	{
-		renderSpaceMonkey(modelMatrix, viewMatrix, projectionMatrix);
+		Material mat = {
+			glm::vec3(1.0f, 1.0f, 1.0f),  // Ambient
+			glm::vec3(1.0f, 1.0f, 1.0f),  // Diffuse
+		    glm::vec3(1.0f),              // Specular
+			0.0f,                         // Shininess
+			NULL
+		};
+
+		renderSpaceMonkey(mat, modelMatrix, viewMatrix, projectionMatrix);
 		return;
 	}
 
@@ -275,8 +275,10 @@ void Renderer::renderObject(ObjectType objectType, const Material material,
 		return;
 
 	if (objectType == MONKEY)
-		renderSpaceMonkey(modelMatrix, viewMatrix, projectionMatrix);
-
+	{
+		renderSpaceMonkey(material, modelMatrix, viewMatrix, projectionMatrix);
+		return;
+	}
 	glUseProgram(objectShader.program);
 
 	const MeshGeometry* mesh = geometry[objectType];

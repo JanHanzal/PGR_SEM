@@ -14,6 +14,30 @@ void Object::Update(float deltaTime)
 
 void Object::Move(glm::vec3 motion)
 {
+ 
+    float limit = WORLD_BOUND / 2.0;
+    glm::vec3 newPosition = transform.position + motion;
+
+    if (abs(newPosition.x) > limit)
+    {
+        motion.x = -motion.x;
+        velocity.x = -velocity.x;
+        velocity *= ELASTIC_CONSTANT;
+    }
+    if (abs(newPosition.y) > limit)
+    {
+        motion.y = -motion.y;
+        velocity.y = -velocity.y * ELASTIC_CONSTANT;
+        velocity *= ELASTIC_CONSTANT;
+    }
+    if (abs(newPosition.z) > limit)
+    {
+        motion.z = -motion.z;
+        velocity.z = -velocity.z * ELASTIC_CONSTANT;
+        velocity *= ELASTIC_CONSTANT;
+    }
+
+    
     transform.position += motion;
 }
 
@@ -68,7 +92,7 @@ void Planet::Update(float timeDelta)
         glm::vec3 accelerationVector = glm::normalize(dir) * acceleration;
         velocity += accelerationVector * timeDelta;
     }
-
+    
     Move(velocity * timeDelta);
 
     glm::vec3 rotationVector = glm::vec3(0.0f, 30.0f, 0.0f);

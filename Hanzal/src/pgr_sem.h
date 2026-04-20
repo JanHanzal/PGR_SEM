@@ -9,7 +9,9 @@
 extern Renderer renderer;
 
 #define WORLD_UP_VECTOR glm::vec3(0.0f, 0.0f, 1.0f)
-#define CAMERA_ELEVATION_MAX 90
+#define CAMERA_ELEVATION_MAX 80
+#define RADIUS_MIN 20.0
+#define RADIUS_MAX 100.0
 
 #define PHI transform.rotation.x
 #define THETA transform.rotation.z
@@ -45,7 +47,7 @@ class Camera
         float aspect;
         float nearPlane = 0.1f, farPlane = 50.0f;
         
-        float radius = 30.0f;
+        float radius = RADIUS_MIN;
         
 
         Camera::ProjectionType projectionType = PERSPECTIVE;
@@ -189,7 +191,7 @@ class Camera
 
         void increaseRadius(float amount)
         {
-            if (radius + amount < 100 && radius + amount >= 30)
+            if (radius + amount < RADIUS_MAX && radius + amount >= RADIUS_MIN)
             { 
                 radius += amount;
             }

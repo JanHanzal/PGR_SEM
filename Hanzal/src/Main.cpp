@@ -69,9 +69,9 @@ void initScene()
     Planet* earth = new Planet(
         { EARTH_POSITION, EARTH_ROTATION, EARTH_SCALE },
         Renderer::SPHERE,
-        {default_planet_material, },
+        default_planet_material,
         EARTH_MASS,
-        100.0f,
+        500.0f,
         false,
         objects
     );
@@ -127,24 +127,12 @@ void onDisplay(void)
 
     // SPACE MONKEY ===================================================
     {
-        auto t = fmod(elapsedTime, 5.0) / 5.0;
-
-        struct Transform transform = {
-            spline->get_Position_Catmull_Rom(t),
-            glm::vec3(90.0f, 0.0f, 0.0f),
-            glm::vec3(1.0f, 1.0f, 1.0f)
-        };
-
-        glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), transform.position);
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(transform.scale));
-        modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.x), { 1.0f, 0.0f, 0.0f });
-        modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.z), { 0.0f, 0.0f, 1.0f });
-        modelMatrix = glm::rotate(modelMatrix, glm::radians(transform.rotation.y), { 0.0f, 1.0f, 0.0f });
+        glm::mat4 modelMatrix = spline->alignObject(renderer.spaceMonkey.position, renderer.spaceMonkey.direction, WORLD_UP_VECTOR);
 
         bool wireframed = false;
         bool movingTexture = false;
         bool isObjectSun = false;
-        renderer.renderObject(Renderer::MONKEY, modelMatrix, VP.viewMatrix, VP.projectionMatrix, wireframed, movingTexture, isObjectSun);
+        renderer.renderObject(Renderer::MONKEY, pewter, modelMatrix, VP.viewMatrix, VP.projectionMatrix, wireframed, movingTexture, isObjectSun);
     }
     //=================================================================
     
@@ -154,9 +142,6 @@ void onDisplay(void)
 void lateWorldUpdate(float deltaTime)
 {
     glm::vec3 spherePosition = camera->getRadius() * camera->getSpherePosition();
-
-    auto t = fmod(elapsedTime, 5) / 5.0;
-
     switch (camera->getCameraControlType())
     {
         case Camera::FREE:
@@ -166,8 +151,9 @@ void lateWorldUpdate(float deltaTime)
             camera->changeCenterPoint(objects[SUN]->getPosition());
             break;
         case Camera::SPHERICAL:
-            camera->setPosition(objects[follow_planet]->getPosition() - spherePosition);
-            camera->changeCenterPoint(objects[follow_planet]->getPosition());
+            //camera->setPosition(objects[follow_planet]->getPosition() - spherePosition);
+            camera->setPosition(renderer.spaceMonkey.position - spherePosition);
+            camera->changeCenterPoint(renderer.spaceMonkey.position);
             break;
         default:
             break;
@@ -179,19 +165,13 @@ void updateWorld(float deltaTime)
     for (Planet* o : objects)
         o->Update(deltaTime);
 
+    // SPACE MONKEY ===================================================
+    auto t = fmod(elapsedTime, 5.0) / 5.0;
+    renderer.spaceMonkey.position = spline->get_Position_Catmull_Rom(t);
+    renderer.spaceMonkey.direction = -spline->get_1stDerivative_Catmull_Rom(t);
+    //=================================================================
+
     lateWorldUpdate(deltaTime);
-}
-
-
-
-
-void onReshape(int width, int height)
-{
-    glutReshapeWindow(width, height);
-    camera->reshapeWindow(width, height);
-    WIN_WIDTH = width;
-    WIN_HEIGHT = height;
-    glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 }
 
 void timerCallback(int) 
@@ -199,6 +179,8 @@ void timerCallback(int)
     float currentTime = 0.001f * (float)glutGet(GLUT_ELAPSED_TIME);
     float deltaTime = currentTime - elapsedTime;
     elapsedTime = currentTime;
+
+    updateWorld(deltaTime);
     
     //==============================================
     //Camera Input==================================
@@ -214,19 +196,26 @@ void timerCallback(int)
     //Deccent
     if (_input[Q]) cameraMotion += glm::vec3(0.0f, 0.0f, -1.0f);
 
+    
     camera->Move(cameraMotion , deltaTime);
     camera->Update(deltaTime);
     //==============================================
     //==============================================
 
 
-    
-    
-    updateWorld(deltaTime);
-    //lateWorldUpdate(deltaTime);
-
     glutTimerFunc(1000/FPS, timerCallback, 0);
     glutPostRedisplay();
+}
+
+
+
+void onReshape(int width, int height)
+{
+    glutReshapeWindow(width, height);
+    camera->reshapeWindow(width, height);
+    WIN_WIDTH = width;
+    WIN_HEIGHT = height;
+    glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 }
 
 void keyboardCallback(unsigned char keyPressed, int mouseX, int mouseY)
@@ -292,6 +281,8 @@ void keyboardSpecialCallback(int key, int x, int y) {
             camera->changeCameraControl(Camera::LOCKED);
             break;
         case GLUT_KEY_F2:
+            if (camera->getCameraControlType() == Camera::SPHERICAL)
+                follow_planet = static_cast<PlanetsOrder>((follow_planet + 1) % PLANETS_LENGTH);
             camera->changeCameraControl(Camera::SPHERICAL);
             break;
         case GLUT_KEY_F3:

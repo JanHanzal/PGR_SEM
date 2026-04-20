@@ -12,6 +12,10 @@ private:
 public:
 	Spline(glm::vec3 _P0, glm::vec3 _P1, glm::vec3 _P2, glm::vec3 _P3);
 	glm::vec3 get_Position_Catmull_Rom(float t);
+	glm::vec3 get_1stDerivative_Catmull_Rom(float t);
+
+
+	glm::mat4 alignObject(const glm::vec3& position, const glm::vec3& front, const glm::vec3& up);
 
 };
 

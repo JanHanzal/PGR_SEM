@@ -23,14 +23,17 @@ class Renderer
 			POINT
 		};
 		
-	private:
-
 		struct SpaceMonkey
 		{
 			GLuint vao = 0, vbo = 0, ebo = 0;
 			GLuint monkey_texture;
+
+			glm::vec3 position;
+			glm::vec3 direction;
+
 		} spaceMonkey;
-		
+
+	private:
 
 		std::vector<MeshGeometry*> geometry;
 		MeshGeometry* skyBox = nullptr;
@@ -53,8 +56,7 @@ class Renderer
 
 		void initSpaceMonkey();
 
-		void renderSpaceMonkey(const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,
-			const glm::mat4& projectionMatrix);
+		void renderSpaceMonkey(Material material, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
 
 		void initSkybox();
 

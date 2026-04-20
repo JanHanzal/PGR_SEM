@@ -6,6 +6,7 @@
 #define SCENE_WIDTH  1.0f
 #define SCENE_HEIGHT 1.0f
 
+#define WORLD_BOUND 2000
 
 
 #define CAMERA_START_POSITION glm::vec3(100.0f, 0.0f, 20.0f)
@@ -17,7 +18,8 @@
 
 
 
-#define G 10 //Gravitational constant
+#define G 10 // Gravitational constant
+#define ELASTIC_CONSTANT 0.75 // Energy loss on bounce 
 
 #define SUN_POSITION glm::vec3(0.0)
 #define SUN_ROTATION glm::vec3(90.0f, 0.0f, 0.0f)
