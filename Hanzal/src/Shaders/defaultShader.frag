@@ -5,6 +5,12 @@
 #define POINT 2
 
 
+const int   FOG_TYPE    = 1;                   // 0 = Lineární, 1 = Exponenciální, 2 = Exp. kvadratická
+const vec3  FOG_COLOR   = vec3(0.7, 0.7, 0.7); // Svìtle šedá barva mlhy
+const float FOG_START   = 50.0;                // Vzdálenost, kde mlha zaèíná (pro lineární)
+const float FOG_END     = 250.0;                // Vzdálenost, kde pøes mlhu není vidìt (pro lineární)
+const float FOG_DENSITY = 0.05;                // Hustota (pro exponenciální typy)
+
 struct Material {
   vec3  ambient;
   vec3  diffuse;
@@ -46,7 +52,7 @@ uniform Light spotLight;
 uniform Light pointLight;
 
 uniform int activeLightning;
-
+uniform bool FOG_ENABLED = false;
 
 out vec4 fragColor;
 
@@ -185,6 +191,23 @@ void main() {
   {
       texColor = texture(texSampler, texCoord_v);
   }
+  vec3 baseColor = outputColor * texColor.rgb;
+  if(FOG_ENABLED)
+  {
+ 
+      float dist = length(vertexPosition_v);
+      float fogFactor = 1.0; 
 
-  fragColor = vec4(outputColor, 1.0) * texColor;
+    if (FOG_TYPE == 0) 
+          fogFactor = (FOG_END - dist) / (FOG_END - FOG_START);
+    else if (FOG_TYPE == 1) 
+          fogFactor = exp(-FOG_DENSITY * dist);
+    else if (FOG_TYPE == 2) 
+          fogFactor = exp(-pow(FOG_DENSITY * dist, 2.0));
+      
+      
+      fogFactor = clamp(fogFactor, 0.0, 1.0);
+      baseColor = mix(FOG_COLOR, baseColor, fogFactor);
+  }
+  fragColor = vec4(baseColor, texColor.a);
 }

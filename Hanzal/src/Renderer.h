@@ -46,6 +46,8 @@ class Renderer
 		PointLight pointLight;
 
 		ActiveLightning activeLightning = DIRECTIONAL;
+
+		bool FOG_ENABLED = false;
 //=============================================================
 	private:
 		void shadersInit();
@@ -65,14 +67,16 @@ class Renderer
 
 		void Init();
 
-
 		void changeDirectionalLightParams(DirectionalLight newDirLight);
 
 		void changeSpotLightParams(SpotLight _spotLight);
 		
 		void changePointLightParams(PointLight _pointLight);
 
-		void changeActiveLightning();//ActiveLightning _activeLightning);
+		void changeActiveLightning();
+
+
+		void changeFogEnablement();
 
 		void renderObject(ObjectType objectType,
 			const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix,

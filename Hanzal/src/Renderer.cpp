@@ -168,6 +168,10 @@ void Renderer::changeActiveLightning()//ActiveLightning _activeLightning)
 	//activeLightning = _activeLightning;
 }
 
+void Renderer::changeFogEnablement()
+{
+	FOG_ENABLED = !FOG_ENABLED;
+}
 
 void Renderer::changeDirectionalLightParams(DirectionalLight newDirLight)
 {
@@ -253,12 +257,9 @@ void Renderer::renderObject(ObjectType objectType,
 	setPointLightUniforms(objectShader, pointLight);
 
 	glUniform1i(objectShader.isObjectSunLocation, isObjectSun);
+	glUniform1i(objectShader.fogEnabledLocation, FOG_ENABLED);
 
-	if (wireframed)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	else
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+	glPolygonMode(GL_FRONT_AND_BACK, (wireframed) ? GL_LINE : GL_FILL);
 
 	glBindVertexArray(mesh->vertexArrayObject);
 	glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_INT, 0);
@@ -297,11 +298,11 @@ void Renderer::renderObject(ObjectType objectType, const Material material,
 
 	glUniform1i(objectShader.activeLightningLocation, static_cast<int>(activeLightning));
 	glUniform1i(objectShader.isObjectSunLocation, isObjectSun);
+	glUniform1i(objectShader.fogEnabledLocation, FOG_ENABLED);
 
-	if (wireframed)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	else
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	
+	glPolygonMode(GL_FRONT_AND_BACK,(wireframed)? GL_LINE: GL_FILL);
+
 
 	glBindVertexArray(mesh->vertexArrayObject);
 	glDrawElements(GL_TRIANGLES, mesh->numTriangles * 3, GL_UNSIGNED_INT, 0);
@@ -325,7 +326,7 @@ void Renderer::renderSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
 
 	glUniformMatrix4fv(skyboxShader.inversePVMatrixLocation, 1, GL_FALSE, glm::value_ptr(inverseMatrix));
 	glUniform1i(skyboxShader.skyboxSamplerLocation, 0);
-
+	glUniform1i(skyboxShader.fogEnabledLocation, FOG_ENABLED);
 
 
 	glBindVertexArray(skyBox->vertexArrayObject);

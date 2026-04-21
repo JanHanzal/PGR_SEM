@@ -11,6 +11,7 @@ int WIN_HEIGHT = 1080;
 const char* WIN_TITLE = "Hanzal Semestral Assignment";
 
 float elapsedTime = 0.0f;
+bool lockedMouse = true;
 
 std::vector<Planet*> objects;
 Renderer renderer;
@@ -116,13 +117,17 @@ void onDisplay(void)
         renderer.changeSpotLightParams(sl);
     }
     //=================================================================
-
+    size_t id = 0;
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     for (Planet* o : objects)
     {
         if (objects[EARTH] == o && camera->getCameraControlType() == Camera::LOCKED)
             continue;
 
+        glStencilFunc(GL_ALWAYS, id + 1, 0);
         o->renderObject(VP.viewMatrix, VP.projectionMatrix);
+        id++;
     }
 
     // SPACE MONKEY ===================================================
@@ -132,10 +137,12 @@ void onDisplay(void)
         bool wireframed = false;
         bool movingTexture = false;
         bool isObjectSun = false;
+
+        glStencilFunc(GL_ALWAYS, id + 1, 0);
         renderer.renderObject(Renderer::MONKEY, pewter, modelMatrix, VP.viewMatrix, VP.projectionMatrix, wireframed, movingTexture, isObjectSun);
     }
     //=================================================================
-    
+    glDisable(GL_STENCIL_TEST);
     glutSwapBuffers();
 }
 
@@ -243,6 +250,14 @@ void keyboardCallback(unsigned char keyPressed, int mouseX, int mouseY)
     case 'd':
         _input[D] = true;
         break;
+    case ' ':
+        lockedMouse = !lockedMouse;
+        if (lockedMouse)
+            glutSetCursor(GLUT_CURSOR_NONE);
+        else
+            glutSetCursor(GLUT_CURSOR_INHERIT);
+
+        break;
     default:
         break;
     }
@@ -271,7 +286,7 @@ void keyboardUpCallback(unsigned char keyReleased, int mouseX, int mouseY) {
         _input[D] = false;
         break;
     default:
-        ; // printf("Unrecognized key released\n");
+        ;
     }
 }
 
@@ -291,6 +306,9 @@ void keyboardSpecialCallback(int key, int x, int y) {
         case GLUT_KEY_F4:
             renderer.changeActiveLightning();
             break;
+        case GLUT_KEY_F5:
+            renderer.changeFogEnablement();
+            break;
     }
 }
 
@@ -301,6 +319,9 @@ void mouseWheelCallback(int wheel, int direction, int x, int y) {
 
 void passiveMouseMotionCallback(int mouseX, int mouseY) 
 {
+    if (!lockedMouse)
+        return;
+
     int cx = WIN_WIDTH / 2, cy = WIN_HEIGHT / 2;
     if (mouseX == cx && mouseY == cy) 
         return;
@@ -313,7 +334,20 @@ void passiveMouseMotionCallback(int mouseX, int mouseY)
     glutPostRedisplay();
 }
 
+void mouseCallback(int buttonPressed, int buttonState, int mouseX, int mouseY) 
+{
+    if ((buttonPressed == GLUT_LEFT_BUTTON) && (buttonState == GLUT_DOWN)) 
+    {
+        unsigned char asteroidID = 0;
+        glReadPixels(mouseX, WIN_HEIGHT - mouseY, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, &asteroidID);
 
+        if (asteroidID == 0) 
+            printf("Clicked on background\n");
+        
+        else 
+            printf("Clicked on object with ID: %d\n", (int)asteroidID);
+    }
+}
 
 
 int main(int argc, char** argv) {
@@ -328,7 +362,7 @@ int main(int argc, char** argv) {
     //======================================
     //Callbacks-----------------------------
     glutDisplayFunc(onDisplay);
-    glutTimerFunc(33, timerCallback, 0);
+    glutTimerFunc(1000/FPS, timerCallback, 0);
     glutReshapeFunc(onReshape);
     glutKeyboardFunc(keyboardCallback);
     glutKeyboardUpFunc(keyboardUpCallback);
@@ -336,6 +370,7 @@ int main(int argc, char** argv) {
     glutPassiveMotionFunc(passiveMouseMotionCallback);
     glutMouseWheelFunc(mouseWheelCallback);
     glutWarpPointer(WIN_WIDTH / 2, WIN_HEIGHT / 2);
+    glutMouseFunc(mouseCallback);
     //======================================
     glutSetCursor(GLUT_CURSOR_NONE);
 

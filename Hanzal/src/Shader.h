@@ -41,6 +41,9 @@ typedef struct _objectShaderProgram {
 	GLint textureMatrixLocation;
 	
 
+
+	GLint fogEnabledLocation;
+
 	GLint isObjectSunLocation;
 	GLint activeLightningLocation;
 	//Light - Directional, Spot, Point
@@ -74,6 +77,7 @@ typedef struct SkyboxShader
 
 	GLuint inversePVMatrixLocation;
 	GLuint skyboxSamplerLocation;;
+	GLuint fogEnabledLocation;
 };
 
 void setTransformUniforms(ObjectShader& shaderProgram, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, bool movingTexture);

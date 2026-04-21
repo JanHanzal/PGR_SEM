@@ -125,6 +125,8 @@ void initializeObjectShaderProgram(ObjectShader& shaderProgram)
 	shaderProgram.useTextureLocation = glGetUniformLocation(shaderProgram.program, "material.useTexture");
 	shaderProgram.textureMatrixLocation = glGetUniformLocation(shaderProgram.program, "textureMatrix");
 
+	shaderProgram.fogEnabledLocation = glGetUniformLocation(shaderProgram.program, "FOG_ENABLED");
+
 	shaderProgram.isObjectSunLocation = glGetUniformLocation(shaderProgram.program, "isObjectSun");
 	shaderProgram.activeLightningLocation = glGetUniformLocation(shaderProgram.program, "activeLightning");
 	//Light - Directional
@@ -166,6 +168,7 @@ void initializeSkyboxShaderProgram(SkyboxShader& skyboxShader)
 
 	skyboxShader.inversePVMatrixLocation = glGetUniformLocation(skyboxShader.program, "inversePVMatrix");
 	skyboxShader.skyboxSamplerLocation = glGetUniformLocation(skyboxShader.program, "skyboxSampler");
+	skyboxShader.fogEnabledLocation = glGetUniformLocation(skyboxShader.program, "FOG_ENABLED");
 }
 
 void cleanupShaderPrograms(ObjectShader& shaderProgram)
