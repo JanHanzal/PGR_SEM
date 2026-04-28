@@ -5,11 +5,11 @@
 #define POINT 2
 
 
-const int   FOG_TYPE    = 1;                   // 0 = Lineární, 1 = Exponenciální, 2 = Exp. kvadratická
-const vec3  FOG_COLOR   = vec3(0.7, 0.7, 0.7); // Svìtle šedá barva mlhy
-const float FOG_START   = 50.0;                // Vzdálenost, kde mlha zaèíná (pro lineární)
-const float FOG_END     = 250.0;                // Vzdálenost, kde pøes mlhu není vidìt (pro lineární)
-const float FOG_DENSITY = 0.05;                // Hustota (pro exponenciální typy)
+const int   FOG_TYPE    = 1;                  
+const vec3  FOG_COLOR   = vec3(0.7, 0.7, 0.7); 
+const float FOG_START   = 50.0;                
+const float FOG_END     = 250.0;               
+const float FOG_DENSITY = 0.05;                
 
 struct Material {
   vec3  ambient;

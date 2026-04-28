@@ -171,7 +171,20 @@ void initializeSkyboxShaderProgram(SkyboxShader& skyboxShader)
 	skyboxShader.fogEnabledLocation = glGetUniformLocation(skyboxShader.program, "FOG_ENABLED");
 }
 
-void cleanupShaderPrograms(ObjectShader& shaderProgram)
+void initializeAnimatedBillboardShaderProgram(AnimatedBillboardShaderProgram& animBillboardShader)
 {
-	pgr::deleteProgramAndShaders(shaderProgram.program);
+	std::vector<GLuint> shaders;
+
+	shaders.push_back(pgr::createShaderFromFile(GL_VERTEX_SHADER, FIRE_VERT_SHADER));
+	shaders.push_back(pgr::createShaderFromFile(GL_FRAGMENT_SHADER, FIRE_FRAG_SHADER));
+
+	animBillboardShader.program = pgr::createProgram(shaders);
+
+	animBillboardShader.posLocation = glGetAttribLocation(animBillboardShader.program, "position");
+	animBillboardShader.texCoordLocation = glGetAttribLocation(animBillboardShader.program, "texCoord");
+
+	animBillboardShader.PVMmatrixLocation = glGetUniformLocation(animBillboardShader.program, "PVMmatrix");
+	animBillboardShader.timeLocation = glGetUniformLocation(animBillboardShader.program, "time");
+	animBillboardShader.texSamplerLocation = glGetUniformLocation(animBillboardShader.program, "texSampler");
 }
+

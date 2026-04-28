@@ -51,4 +51,18 @@ class Planet : public Object
         float getMass();
 };
 
+class Fire
+{
+    private:
+        Transform transform;
+        float started;
+
+    public:
+        Fire(Transform _transform, float _time) : transform(_transform), started(_time) {};
+
+        float getStartingTime();
+
+        Transform getTransform();
+};
+
 #endif

@@ -125,3 +125,14 @@ float Planet::getMass()
 {
     return mass;
 }
+
+
+float Fire::getStartingTime()
+{
+    return started;
+}
+
+Transform Fire::getTransform()
+{
+    return transform;
+}

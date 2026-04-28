@@ -4,6 +4,7 @@ void Renderer::shadersInit()
 {
 	initializeObjectShaderProgram(objectShader);
 	initializeSkyboxShaderProgram(skyboxShader);
+	initializeAnimatedBillboardShaderProgram(animBillboardShader);
 }
 
 void Renderer::loadMeshes()
@@ -61,7 +62,9 @@ Renderer::~Renderer()
 	{
 		cleanupGeometry(mesh);
 	}
-	cleanupShaderPrograms(objectShader);
+	pgr::deleteProgramAndShaders(objectShader.program);
+	pgr::deleteProgramAndShaders(skyboxShader.program);
+	pgr::deleteProgramAndShaders(animBillboardShader.program);
 }
 
 void Renderer::Init()
@@ -70,6 +73,7 @@ void Renderer::Init()
 	setUpLights();
 	loadMeshes();
 	initSpaceMonkey();
+	initFireBillboard(&geometry[FIRE]);
 	initSkybox();
 }
 
@@ -101,8 +105,6 @@ void Renderer::initSpaceMonkey()
 	
 
 	glBindVertexArray(0);
-
-	spaceMonkey.monkey_texture = pgr::createTexture("Data/Sun.jpg");
 }
 
 void Renderer::initSkybox()
@@ -162,6 +164,34 @@ void Renderer::initSkybox()
 	CHECK_GL_ERROR();
 }
 
+void Renderer::initFireBillboard(MeshGeometry** fireGeometry)
+{
+	const char* FIRE_TEXTURE_NAME = "Data/explosion.png";
+	*fireGeometry = new MeshGeometry;
+
+	(*fireGeometry)->material.texture = pgr::createTexture(FIRE_TEXTURE_NAME);
+
+	glGenVertexArrays(1, &((*fireGeometry)->vertexArrayObject));
+	glBindVertexArray((*fireGeometry)->vertexArrayObject);
+
+	glGenBuffers(1, &((*fireGeometry)->vertexBufferObject));
+	glBindBuffer(GL_ARRAY_BUFFER, (*fireGeometry)->vertexBufferObject);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(explosionVertexData), explosionVertexData, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(animBillboardShader.posLocation);
+
+	glVertexAttribPointer(animBillboardShader.posLocation, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+
+	glEnableVertexAttribArray(animBillboardShader.texCoordLocation);
+	glVertexAttribPointer(animBillboardShader.texCoordLocation, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	glBindVertexArray(0);
+
+	(*fireGeometry)->numTriangles = explosionNumQuadVertices;
+
+};
+
+
 void Renderer::changeActiveLightning()//ActiveLightning _activeLightning)
 {
 	activeLightning = static_cast<ActiveLightning>((activeLightning + 1) % 3);
@@ -192,11 +222,9 @@ void Renderer::changePointLightParams(PointLight _pointLight)
 void Renderer::renderSpaceMonkey(Material material, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
 	glUseProgram(objectShader.program);
-	
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-
+	
 	setTransformUniforms(
 		objectShader,
 		modelMatrix,
@@ -205,16 +233,22 @@ void Renderer::renderSpaceMonkey(Material material, const glm::mat4& modelMatrix
 		false
 	);
 	
-
+	
 	setMaterialUniforms(objectShader, material);
 	setDirectionalLightUniforms(objectShader, directionalLight);
 	setSpotLightUniforms(objectShader, spotLight);
 	setPointLightUniforms(objectShader, pointLight);
 
+	glUniform1i(objectShader.isObjectSunLocation, false);
+	glUniform1i(objectShader.fogEnabledLocation, FOG_ENABLED);
+
+	
 	glBindVertexArray(spaceMonkey.vao);
 	glDrawElements(GL_TRIANGLES, pgr::monkeyData.nTriangles * 3, GL_UNSIGNED_INT, 0);
 	
 	glBindVertexArray(0);
+	glUseProgram(0);
+
 	CHECK_GL_ERROR();
 }
 
@@ -222,7 +256,7 @@ void Renderer::renderObject(ObjectType objectType,
 	const glm::mat4& modelMatrix, const glm::mat4& viewMatrix,const glm::mat4& projectionMatrix,
 	bool wireframed, bool movingTexture, bool isObjectSun)
 {
-	if (objectType == OBJECT_TYPE_SIZE)
+	if (objectType == OBJECT_TYPE_SIZE || objectType == FIRE)
 		return;
 	
 	if (objectType == MONKEY)
@@ -266,13 +300,14 @@ void Renderer::renderObject(ObjectType objectType,
 
 	glBindVertexArray(0);
 	glUseProgram(0);
+	CHECK_GL_ERROR();
 }
 
 void Renderer::renderObject(ObjectType objectType, const Material material,
 	const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix,
 	bool wireframed, bool movingTexture, bool isObjectSun)
 {
-	if (objectType == OBJECT_TYPE_SIZE)
+	if (objectType == OBJECT_TYPE_SIZE || objectType == FIRE)
 		return;
 
 	if (objectType == MONKEY)
@@ -335,4 +370,53 @@ void Renderer::renderSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
 
 	glBindVertexArray(0);
 	glUseProgram(0);
+	CHECK_GL_ERROR();
+}
+
+void Renderer::renderFire(glm::vec3 position, float size, float startTime, float currentTime, glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
+{
+	if (startTime > currentTime)
+		return;
+	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+
+	glUseProgram(animBillboardShader.program);
+
+	glm::mat4 billboardRotationMatrix = glm::mat4(
+		viewMatrix[0],
+		viewMatrix[1],
+		viewMatrix[2],
+		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+	);
+
+	billboardRotationMatrix = glm::transpose(billboardRotationMatrix);
+
+	glm::mat4 matrix = glm::mat4(1.0f);
+	matrix = glm::translate(matrix, position);
+	matrix = glm::scale(matrix, glm::vec3(size));
+
+	matrix = matrix * billboardRotationMatrix;
+	glm::mat4 PVMmatrix = projectionMatrix * viewMatrix * matrix;
+
+	
+
+	glUniformMatrix4fv(animBillboardShader.PVMmatrixLocation, 1, GL_FALSE, glm::value_ptr(PVMmatrix));
+	glUniform1f(animBillboardShader.timeLocation, currentTime - startTime);
+	glUniform1i(animBillboardShader.texSamplerLocation, 0);
+	
+
+	glBindVertexArray(geometry[FIRE]->vertexArrayObject);
+	glBindTexture(GL_TEXTURE_2D, geometry[FIRE]->material.texture);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, geometry[FIRE]->numTriangles);
+
+	glBindVertexArray(0);
+	glUseProgram(0);
+
+	glDisable(GL_BLEND);
+	
+	CHECK_GL_ERROR();
 }

@@ -68,11 +68,19 @@
     <ClInclude Include="Light.h">
       <Filter>Hlavičkové soubory</Filter>
     </ClInclude>
+    <ClInclude Include="Shaders\C_meshData.h">
+      <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="C_meshData.h">
+      <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\defaultShader.frag" />
     <None Include="Shaders\defaultShader.vert" />
     <None Include="Shaders\Skybox.frag" />
     <None Include="Shaders\Skybox.vert" />
+    <None Include="Shaders\BillboardShader.frag" />
+    <None Include="Shaders\BillboardShader.vert" />
   </ItemGroup>
 </Project>

@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClCompile Include="Mesh.cpp" />
     <ClInclude Include="Configuration.h" />
+    <ClInclude Include="C_meshData.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="pgr_sem.h" />
@@ -159,8 +160,11 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShadersConfiguration.h" />
     <ClInclude Include="Materials.h" />
+    <ClInclude Include="Shaders\C_meshData.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\BillboardShader.frag" />
+    <None Include="Shaders\BillboardShader.vert" />
     <None Include="Shaders\defaultShader.frag" />
     <None Include="Shaders\defaultShader.vert" />
     <None Include="Shaders\Skybox.frag" />

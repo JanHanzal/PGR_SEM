@@ -1,8 +1,9 @@
-#include "Mesh.h"
-#include "Shader.h"
-
 #ifndef __RENDERER_H
 #define __RENDERER_H
+
+#include "Mesh.h"
+#include "Shader.h"
+#include "C_meshData.h"
 
 
 class Renderer
@@ -13,6 +14,7 @@ class Renderer
 			SPHERE,
 			GHOUL,
 			MONKEY,
+			FIRE,
 			OBJECT_TYPE_SIZE
 		};
 
@@ -40,6 +42,7 @@ class Renderer
 
 		ObjectShader objectShader;
 		SkyboxShader skyboxShader;
+		AnimatedBillboardShaderProgram animBillboardShader;
 
 		DirectionalLight directionalLight;
 		SpotLight spotLight;
@@ -61,6 +64,8 @@ class Renderer
 		void renderSpaceMonkey(Material material, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
 
 		void initSkybox();
+
+		void initFireBillboard(MeshGeometry** fireGeometry);
 
 	public:
 		~Renderer();
@@ -87,6 +92,9 @@ class Renderer
 			bool wireframed, bool movingTexture, bool isObjectSun);
 
 		void renderSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix);
+
+		void renderFire(glm::vec3 position, float size,float startTime, float currentTime, glm::mat4 viewMatrix, glm::mat4 projectionMatrix);
+
 };
 
 #endif

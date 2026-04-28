@@ -80,6 +80,17 @@ typedef struct SkyboxShader
 	GLuint fogEnabledLocation;
 };
 
+struct AnimatedBillboardShaderProgram {
+	GLuint program; 
+
+	GLint posLocation;
+	GLint texCoordLocation;
+
+	GLint PVMmatrixLocation;
+	GLint timeLocation; 
+	GLint texSamplerLocation;
+};
+
 void setTransformUniforms(ObjectShader& shaderProgram, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, bool movingTexture);
 
 void setMaterialUniforms(ObjectShader& shaderProgram, const Material material);
@@ -95,7 +106,7 @@ void initializeObjectShaderProgram(ObjectShader& shaderProgram);
 
 void initializeSkyboxShaderProgram(SkyboxShader& skyboxShader);
 
+void initializeAnimatedBillboardShaderProgram(AnimatedBillboardShaderProgram& animBillboardShader);
 
-void cleanupShaderPrograms(ObjectShader& shaderProgram);
 
 #endif

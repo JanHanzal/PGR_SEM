@@ -14,6 +14,7 @@ float elapsedTime = 0.0f;
 bool lockedMouse = true;
 
 std::vector<Planet*> objects;
+std::vector<Fire*> fire;
 Renderer renderer;
 Camera* camera;
 Spline* spline;
@@ -89,6 +90,8 @@ void initScene()
         objects
     );
     objects.push_back(saturn);
+
+    fire.push_back(new Fire({ glm::vec3(0.0f), glm::vec3(0.0f) , glm::vec3(20.0f) }, elapsedTime));
 }
 
 
@@ -142,6 +145,10 @@ void onDisplay(void)
         renderer.renderObject(Renderer::MONKEY, pewter, modelMatrix, VP.viewMatrix, VP.projectionMatrix, wireframed, movingTexture, isObjectSun);
     }
     //=================================================================
+    Transform fire_t = fire[0]->getTransform();
+    renderer.renderFire(fire_t.position, fire_t.scale.x, fire[0]->getStartingTime(), elapsedTime, VP.viewMatrix, VP.projectionMatrix);
+
+
     glDisable(GL_STENCIL_TEST);
     glutSwapBuffers();
 }

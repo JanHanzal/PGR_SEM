@@ -1,5 +1,3 @@
-
-
 #ifndef __PGR_SEM_H
 #define __PGR_SEM_H
 
