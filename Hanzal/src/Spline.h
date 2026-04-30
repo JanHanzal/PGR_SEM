@@ -14,6 +14,9 @@ public:
 	glm::vec3 get_Position_Catmull_Rom(float t);
 	glm::vec3 get_1stDerivative_Catmull_Rom(float t);
 
+	glm::vec3 get_Position_Lissajous(float t);
+	glm::vec3 get_1stDerivative_Lissajous(float t);
+
 
 	glm::mat4 alignObject(const glm::vec3& position, const glm::vec3& front, const glm::vec3& up);
 

@@ -23,10 +23,6 @@ glm::vec3 Spline::get_Position_Catmull_Rom(float t)
 glm::vec3 Spline::get_1stDerivative_Catmull_Rom(const float t) {
     glm::vec3 result(1.0, 0.0, 0.0);
 
-    // evaluate first derivative for a point on a curve segment (defined by the control points P0...P3)
-    // for the given value of parameter t
-
-  // ======== BEGIN OF SOLUTION - TASK 5_2-2 ======== //
     float t2 = t * t;
 
     result = 0.5f * (
@@ -34,7 +30,6 @@ glm::vec3 Spline::get_1stDerivative_Catmull_Rom(const float t) {
         (2.0f * P0 - 5.0f * P1 + 4.0f * P2 - P3) * (2.0f * t) +
         (-P0 + 3.0f * P1 - 3.0f * P2 + P3) * (3.0f * t2)
         );
-    // ========  END OF SOLUTION - TASK 5_2-2  ======== //
 
     return result;
 }
@@ -61,4 +56,33 @@ glm::mat4 Spline::alignObject(const glm::vec3& position, const glm::vec3& front,
     );
 
     return matrix;
+}
+
+glm::vec3 Spline::get_Position_Lissajous(float t)
+{
+    float A = 150.0f;
+
+    float a = 1.0f;
+    float b = 2.0f;
+    float c = 3.0f;
+
+    return glm::vec3(
+        A * std::sin(a * t),
+        A * std::sin(b * t),
+        A * std::cos(c * t)
+    );
+}
+
+glm::vec3 Spline::get_1stDerivative_Lissajous(float t)
+{
+    float A = 150.0f;
+    float a = 1.0f;
+    float b = 2.0f;
+    float c = 3.0f;
+
+    return glm::vec3(
+        A * a * std::cos(a * t),
+        A * b * std::cos(b * t),
+        -A * c * std::sin(c * t)
+    );
 }

@@ -72,36 +72,35 @@ void Renderer::Init()
 	shadersInit();
 	setUpLights();
 	loadMeshes();
-	initSpaceMonkey();
+	initHrouda();
 	initFireBillboard(&geometry[FIRE]);
 	initSkybox();
 }
 
-void Renderer::initSpaceMonkey()
+void Renderer::initHrouda()
 {
-	glGenVertexArrays(1, &spaceMonkey.vao);
-	glBindVertexArray(spaceMonkey.vao);
+	glGenVertexArrays(1, &hrouda.vao);
+	glBindVertexArray(hrouda.vao);
 
-	glGenBuffers(1, &spaceMonkey.vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, spaceMonkey.vbo);
+	glGenBuffers(1, &hrouda.vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, hrouda.vbo);
 
-	GLsizei stride = 8 * sizeof(float);
-	glBufferData(GL_ARRAY_BUFFER, pgr::monkeyData.nVertices * stride, pgr::monkeyData.verticesInterleaved, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, hrouda_n_vertices * hrouda_n_attribs_per_vertex * sizeof(float), hrouda_vertices, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &spaceMonkey.ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, spaceMonkey.ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, pgr::monkeyData.nTriangles * 3 * sizeof(unsigned int), pgr::monkeyData.triangles, GL_STATIC_DRAW);
+	glGenBuffers(1, &hrouda.ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hrouda.ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hrouda_n_triangles * 3 * sizeof(unsigned int), hrouda_triangles, GL_STATIC_DRAW);
 	
 
 	glEnableVertexAttribArray(objectShader.posLocation);
-	glVertexAttribPointer(objectShader.posLocation, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+	glVertexAttribPointer(objectShader.posLocation, 3, GL_FLOAT, GL_FALSE, hrouda_n_attribs_per_vertex * sizeof(float), (void*)0);
 
 	glEnableVertexAttribArray(objectShader.normalLocation);
-	glVertexAttribPointer(objectShader.normalLocation, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(objectShader.normalLocation, 3, GL_FLOAT, GL_FALSE, hrouda_n_attribs_per_vertex * sizeof(float), (void*)(3 * sizeof(float)));
 	
 
 	glEnableVertexAttribArray(objectShader.texCoordLocation);
-	glVertexAttribPointer(objectShader.texCoordLocation, 2, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(objectShader.texCoordLocation, 2, GL_FLOAT, GL_FALSE, hrouda_n_attribs_per_vertex * sizeof(float), (void*)(6 * sizeof(float)));
 	
 
 	glBindVertexArray(0);
@@ -219,7 +218,7 @@ void Renderer::changePointLightParams(PointLight _pointLight)
 }
 
 
-void Renderer::renderSpaceMonkey(Material material, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+void Renderer::renderHrouda(Material material, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
 	glUseProgram(objectShader.program);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -243,8 +242,8 @@ void Renderer::renderSpaceMonkey(Material material, const glm::mat4& modelMatrix
 	glUniform1i(objectShader.fogEnabledLocation, FOG_ENABLED);
 
 	
-	glBindVertexArray(spaceMonkey.vao);
-	glDrawElements(GL_TRIANGLES, pgr::monkeyData.nTriangles * 3, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(hrouda.vao);
+	glDrawElements(GL_TRIANGLES, hrouda_n_triangles * 3, GL_UNSIGNED_INT, 0);
 	
 	glBindVertexArray(0);
 	glUseProgram(0);
@@ -269,7 +268,7 @@ void Renderer::renderObject(ObjectType objectType,
 			NULL
 		};
 
-		renderSpaceMonkey(mat, modelMatrix, viewMatrix, projectionMatrix);
+		renderHrouda(mat, modelMatrix, viewMatrix, projectionMatrix);
 		return;
 	}
 
@@ -312,7 +311,7 @@ void Renderer::renderObject(ObjectType objectType, const Material material,
 
 	if (objectType == MONKEY)
 	{
-		renderSpaceMonkey(material, modelMatrix, viewMatrix, projectionMatrix);
+		renderHrouda(material, modelMatrix, viewMatrix, projectionMatrix);
 		return;
 	}
 	glUseProgram(objectShader.program);

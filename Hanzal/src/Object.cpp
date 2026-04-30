@@ -51,6 +51,11 @@ glm::vec3 Object::getPosition()
     return transform.position;
 }
 
+Transform Object::getTransform()
+{
+    return transform;
+}
+
 void Object::renderObject(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
     glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), transform.position);

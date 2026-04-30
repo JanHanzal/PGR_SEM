@@ -15,11 +15,12 @@
 #define CAMERA_FAR  2000.0f
 
 #define FPS 60
+#define ANIMATION_LENGTH 0.05 *  24 // One frame length * number of frames
 
 
 
 #define G 10 // Gravitational constant
-#define ELASTIC_CONSTANT 0.75 // Energy loss on bounce 
+#define ELASTIC_CONSTANT 0.6 // Energy loss on bounce 
 
 #define SUN_POSITION glm::vec3(0.0)
 #define SUN_ROTATION glm::vec3(90.0f, 0.0f, 0.0f)

@@ -28,6 +28,8 @@ class Object
 
         glm::vec3 getPosition();
 
+        Transform getTransform();
+
         void renderObject(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
 };
 
@@ -49,6 +51,7 @@ class Planet : public Object
         float getAcceleration(const float mass, const float radius);
 
         float getMass();
+
 };
 
 class Fire

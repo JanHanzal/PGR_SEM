@@ -10,7 +10,7 @@ out vec4 color_f;
 uniform float time;                   
 uniform sampler2D texSampler; 
 
-const float frameDuration = 0.1f;
+const float frameDuration = 0.05f;
 
 
 vec4 get_Texture(int frame)
@@ -18,7 +18,7 @@ vec4 get_Texture(int frame)
 	int col = frame % frames.x;
 	int row = frame / frames.x;
 
-	int invertedRow = (frames.y - 1) - row;
+	int invertedRow = frames.y  - row;
 
 	vec2 frame_size = vec2(1.0) / vec2(frames); 
 	vec2 offset = vec2(float(col), float(invertedRow)) * frame_size;

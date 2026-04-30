@@ -91,7 +91,6 @@ void initScene()
     );
     objects.push_back(saturn);
 
-    fire.push_back(new Fire({ glm::vec3(0.0f), glm::vec3(0.0f) , glm::vec3(20.0f) }, elapsedTime));
 }
 
 
@@ -133,9 +132,9 @@ void onDisplay(void)
         id++;
     }
 
-    // SPACE MONKEY ===================================================
+    // HROUDA ========================================================
     {
-        glm::mat4 modelMatrix = spline->alignObject(renderer.spaceMonkey.position, renderer.spaceMonkey.direction, WORLD_UP_VECTOR);
+        glm::mat4 modelMatrix = spline->alignObject(renderer.hrouda.position, renderer.hrouda.direction, WORLD_UP_VECTOR);
 
         bool wireframed = false;
         bool movingTexture = false;
@@ -145,11 +144,15 @@ void onDisplay(void)
         renderer.renderObject(Renderer::MONKEY, pewter, modelMatrix, VP.viewMatrix, VP.projectionMatrix, wireframed, movingTexture, isObjectSun);
     }
     //=================================================================
-    Transform fire_t = fire[0]->getTransform();
-    renderer.renderFire(fire_t.position, fire_t.scale.x, fire[0]->getStartingTime(), elapsedTime, VP.viewMatrix, VP.projectionMatrix);
-
-
     glDisable(GL_STENCIL_TEST);
+    for (Fire* f : fire)
+    {
+        Transform fire_t = f->getTransform();
+        renderer.renderFire(fire_t.position, fire_t.scale.x, f->getStartingTime(), elapsedTime, VP.viewMatrix, VP.projectionMatrix);
+
+    }
+    
+    
     glutSwapBuffers();
 }
 
@@ -166,8 +169,8 @@ void lateWorldUpdate(float deltaTime)
             break;
         case Camera::SPHERICAL:
             //camera->setPosition(objects[follow_planet]->getPosition() - spherePosition);
-            camera->setPosition(renderer.spaceMonkey.position - spherePosition);
-            camera->changeCenterPoint(renderer.spaceMonkey.position);
+            camera->setPosition(renderer.hrouda.position - spherePosition);
+            camera->changeCenterPoint(renderer.hrouda.position);
             break;
         default:
             break;
@@ -180,11 +183,16 @@ void updateWorld(float deltaTime)
         o->Update(deltaTime);
 
     // SPACE MONKEY ===================================================
-    auto t = fmod(elapsedTime, 5.0) / 5.0;
-    renderer.spaceMonkey.position = spline->get_Position_Catmull_Rom(t);
-    renderer.spaceMonkey.direction = -spline->get_1stDerivative_Catmull_Rom(t);
+    //auto t = fmod(elapsedTime, 5.0) / 5.0;
+    //renderer.hrouda.position = spline->get_Position_Catmull_Rom(t);
+    //renderer.hrouda.direction = -spline->get_1stDerivative_Catmull_Rom(t);
+    
+    auto t = elapsedTime * 0.4;
+    renderer.hrouda.position = spline->get_Position_Lissajous(t);
+    renderer.hrouda.direction = spline->get_1stDerivative_Lissajous(t);
+    
     //=================================================================
-
+  
     lateWorldUpdate(deltaTime);
 }
 
@@ -193,6 +201,20 @@ void timerCallback(int)
     float currentTime = 0.001f * (float)glutGet(GLUT_ELAPSED_TIME);
     float deltaTime = currentTime - elapsedTime;
     elapsedTime = currentTime;
+    
+    
+    if (!fire.empty())
+    {
+        for (auto it = fire.begin(); it != fire.end();)
+        {
+            if (elapsedTime - ((Fire*)(*it))->getStartingTime() > ANIMATION_LENGTH)
+            {
+                it = fire.erase(it);
+            }
+            else 
+                ++it;
+        }
+    }
 
     updateWorld(deltaTime);
     
@@ -343,6 +365,10 @@ void passiveMouseMotionCallback(int mouseX, int mouseY)
 
 void mouseCallback(int buttonPressed, int buttonState, int mouseX, int mouseY) 
 {
+    if (lockedMouse)
+        return;
+
+
     if ((buttonPressed == GLUT_LEFT_BUTTON) && (buttonState == GLUT_DOWN)) 
     {
         unsigned char asteroidID = 0;
@@ -352,7 +378,18 @@ void mouseCallback(int buttonPressed, int buttonState, int mouseX, int mouseY)
             printf("Clicked on background\n");
         
         else 
-            printf("Clicked on object with ID: %d\n", (int)asteroidID);
+        { 
+            auto it = objects.begin();
+            std::advance(it, asteroidID - 1);
+            Planet* selectedPlanet = (Planet *)(*it);
+            Transform t = selectedPlanet->getTransform();
+
+            //Calculates nearest possible position for explosion from the planet 
+            glm::vec3 direction = t.position + glm::normalize(camera->getPosition() - t.position) * (t.scale.x + 1);
+            t.position = direction;
+            t.scale *= 2;
+            fire.emplace_back(new Fire(t, elapsedTime));
+        }
     }
 }
 
@@ -398,5 +435,7 @@ int main(int argc, char** argv) {
     delete spline;
     for (Planet* p : objects)
         delete p;
+    for (Fire* f : fire)
+        delete f;
     return 0;
 }

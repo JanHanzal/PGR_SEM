@@ -25,7 +25,7 @@ class Renderer
 			POINT
 		};
 		
-		struct SpaceMonkey
+		struct hrouda
 		{
 			GLuint vao = 0, vbo = 0, ebo = 0;
 			GLuint monkey_texture;
@@ -33,7 +33,7 @@ class Renderer
 			glm::vec3 position;
 			glm::vec3 direction;
 
-		} spaceMonkey;
+		} hrouda;
 
 	private:
 
@@ -59,9 +59,9 @@ class Renderer
 
 		void setUpLights();
 
-		void initSpaceMonkey();
+		void initHrouda();
 
-		void renderSpaceMonkey(Material material, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
+		void renderHrouda(Material material, const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
 
 		void initSkybox();
 
