@@ -10,6 +10,7 @@ extern GLuint sun_texture;
 extern GLuint earth_texture;
 extern GLuint saturn_texture;
 extern GLuint gold_texture;
+extern GLuint silver_texture;
 
 extern Material default_planet_material;
 extern Material gold;

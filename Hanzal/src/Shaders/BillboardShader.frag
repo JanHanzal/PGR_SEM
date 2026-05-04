@@ -10,7 +10,7 @@ out vec4 color_f;
 uniform float time;                   
 uniform sampler2D texSampler; 
 
-const float frameDuration = 0.05f;
+const float frameDuration = 0.1;
 
 
 vec4 get_Texture(int frame)

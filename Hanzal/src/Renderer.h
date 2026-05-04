@@ -13,7 +13,7 @@ class Renderer
 		{
 			SPHERE,
 			GHOUL,
-			MONKEY,
+			HROUDA,
 			FIRE,
 			OBJECT_TYPE_SIZE
 		};
@@ -28,7 +28,7 @@ class Renderer
 		struct hrouda
 		{
 			GLuint vao = 0, vbo = 0, ebo = 0;
-			GLuint monkey_texture;
+			
 
 			glm::vec3 position;
 			glm::vec3 direction;

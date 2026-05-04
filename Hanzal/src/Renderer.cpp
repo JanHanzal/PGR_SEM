@@ -258,7 +258,7 @@ void Renderer::renderObject(ObjectType objectType,
 	if (objectType == OBJECT_TYPE_SIZE || objectType == FIRE)
 		return;
 	
-	if (objectType == MONKEY)
+	if (objectType == HROUDA)
 	{
 		Material mat = {
 			glm::vec3(1.0f, 1.0f, 1.0f),  // Ambient
@@ -309,7 +309,7 @@ void Renderer::renderObject(ObjectType objectType, const Material material,
 	if (objectType == OBJECT_TYPE_SIZE || objectType == FIRE)
 		return;
 
-	if (objectType == MONKEY)
+	if (objectType == HROUDA)
 	{
 		renderHrouda(material, modelMatrix, viewMatrix, projectionMatrix);
 		return;

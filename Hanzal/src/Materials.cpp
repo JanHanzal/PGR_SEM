@@ -5,12 +5,14 @@
 #define EARTH_TEXTURE_PATH "Data/Earth.jpg"
 #define SATURN_TEXTURE_PATH "Data/Saturn.jpg"
 #define GOLD_TEXTURE_PATH "Data/Gold.jpg"
+#define SILVER_TEXTURE_PATH "Data/Silver.jpg"
 
 //Textures
 GLuint sun_texture;
 GLuint earth_texture;
 GLuint saturn_texture;
 GLuint gold_texture;
+GLuint silver_texture;
 
 
 //Materials
@@ -25,6 +27,7 @@ void createTextures()
 	earth_texture = pgr::createTexture(EARTH_TEXTURE_PATH);
 	saturn_texture = pgr::createTexture(SATURN_TEXTURE_PATH);
 	gold_texture = pgr::createTexture(GOLD_TEXTURE_PATH);
+	silver_texture = pgr::createTexture(SILVER_TEXTURE_PATH);
 }
 
 void initMaterials()
@@ -54,6 +57,6 @@ void initMaterials()
 	brass.diffuse = glm::vec3(0.7804, 0.5686, 0.1137);
 	brass.specular = glm::vec3(0.3294, 0.2235, 0.0275);
 	brass.shininess = 27.89;
-	brass.texture = gold_texture;
+	brass.texture = silver_texture;
 
 }

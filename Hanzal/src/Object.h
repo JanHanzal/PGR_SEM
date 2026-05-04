@@ -40,6 +40,7 @@ class Planet : public Object
         const std::vector<Planet *>& planets;
         float speed = 20.0f;
         bool isSun;
+        bool destroyed = false;
 
     public:
         Planet(Transform _transform, Renderer::ObjectType _objectType, Material material, float _mass, float _speed, bool _isSun, const std::vector<Planet*>& _planets);
@@ -49,6 +50,14 @@ class Planet : public Object
         void renderObject(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
 
         float getAcceleration(const float mass, const float radius);
+
+        bool isPlanetSun();
+
+        bool CollisionDetection(Planet* p);
+
+        void DestroyObject();
+
+        bool isPlanetDestroyed();
 
         float getMass();
 

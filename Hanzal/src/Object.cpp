@@ -1,5 +1,5 @@
 #include "Object.h"
-
+extern std::vector<Fire*> fire;
 
 Object::Object(Transform _transform, Renderer::ObjectType _objectType, Material _material) :
     transform(_transform), objectType(_objectType), material(_material)
@@ -96,6 +96,21 @@ void Planet::Update(float timeDelta)
         float acceleration = getAcceleration(planet->getMass(), radius);
         glm::vec3 accelerationVector = glm::normalize(dir) * acceleration;
         velocity += accelerationVector * timeDelta;
+
+        if (!destroyed && CollisionDetection(planet))
+        {
+            destroyed = true; 
+            planet->DestroyObject();
+            Transform fire_transform;
+
+            fire_transform.position = (transform.position + planet->getTransform().position);
+            fire_transform.position /= 2;
+
+            fire_transform.rotation = glm::vec3(0.0);
+            fire_transform.scale = glm::max(transform.scale, planet->transform.scale) * 2.0f;
+
+            fire.emplace_back(new Fire(fire_transform, elapsedTime));
+        }
     }
     
     Move(velocity * timeDelta);
@@ -126,10 +141,39 @@ float Planet::getAcceleration(const float mass, const float radius)
     return acceleration;
 }
 
+bool Planet::isPlanetSun() 
+{
+    return isSun;
+}
+
 float Planet::getMass()
 {
     return mass;
 }
+
+bool Planet::CollisionDetection(Planet* p)
+{
+    Transform planet_transform = p->getTransform();
+
+    glm::vec3 diff = transform.position - planet_transform.position;
+
+    float distanceSquared = glm::dot(diff, diff);
+    float radiusSum = transform.scale.x + planet_transform.scale.x;
+    float radiusSumSquared = radiusSum * radiusSum;
+
+    return distanceSquared <= radiusSumSquared;
+}
+
+void Planet::DestroyObject()
+{
+    destroyed = true;
+}
+
+bool Planet::isPlanetDestroyed()
+{
+    return destroyed;
+}
+
 
 
 float Fire::getStartingTime()

@@ -15,7 +15,7 @@
 #define CAMERA_FAR  2000.0f
 
 #define FPS 60
-#define ANIMATION_LENGTH 0.05 *  24 // One frame length * number of frames
+#define ANIMATION_LENGTH 0.1 *  24 // One frame length * number of frames
 
 
 
@@ -37,13 +37,12 @@
 #define SATURN_SCALE glm::vec3(5.0f)
 #define SATURN_MASS 10000.0
 
-
+//This enum is only used for initial order with only 3 planets -> might add more
 enum PlanetsOrder
 {
 	SUN,
 	EARTH,
-	SATURN,
-	PLANETS_LENGTH
+	SATURN
 };
 
 #endif

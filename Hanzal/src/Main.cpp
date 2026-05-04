@@ -19,7 +19,9 @@ Renderer renderer;
 Camera* camera;
 Spline* spline;
 
-PlanetsOrder follow_planet = PlanetsOrder::SUN;
+//PlanetsOrder follow_planet = PlanetsOrder::SUN;
+size_t follow_planet = 0;
+
 
 enum Controls
 {
@@ -91,6 +93,64 @@ void initScene()
     );
     objects.push_back(saturn);
 
+    Planet* planet1 = new Planet(
+        { glm::vec3(200), SATURN_ROTATION, EARTH_SCALE},
+        Renderer::SPHERE,
+        default_planet_material,
+        0,
+        EARTH_MASS,
+        false,
+        objects
+    );
+    objects.push_back(planet1);
+
+    Planet* planet2 = new Planet(
+        { glm::vec3(100, 100, 200), SATURN_ROTATION, EARTH_SCALE },
+        Renderer::SPHERE,
+        default_planet_material,
+        20,
+        EARTH_MASS,
+        false,
+        objects
+    );
+    objects.push_back(planet2);
+
+    Planet* planet3 = new Planet(
+        { glm::vec3(100, 100, 300), SATURN_ROTATION, EARTH_SCALE },
+        Renderer::SPHERE,
+        default_planet_material,
+        20,
+        EARTH_MASS,
+        false,
+        objects
+    );
+    objects.push_back(planet3);
+
+
+    // CRASH TEST ==============================================================
+    Planet* crashTest1 = new Planet(
+        { glm::vec3(400.0f, 0.0f, 0.0f), glm::vec3(0.0f), glm::vec3(5.0f) },
+        Renderer::SPHERE,
+        default_planet_material,
+        EARTH_MASS,
+        50.0f,
+        false,
+        objects
+    );
+    objects.push_back(crashTest1);
+
+    Planet* crashTest2 = new Planet(
+        { glm::vec3(400.0f, 0.0f, -40.0f), SUN_ROTATION, SUN_SCALE},
+        Renderer::SPHERE,
+        default_planet_material,
+        SUN_MASS,
+        0.0f,
+        true,
+        objects
+    );
+    objects.push_back(crashTest2);
+    // CRASH TEST ==============================================================
+
 }
 
 
@@ -141,7 +201,7 @@ void onDisplay(void)
         bool isObjectSun = false;
 
         glStencilFunc(GL_ALWAYS, id + 1, 0);
-        renderer.renderObject(Renderer::MONKEY, pewter, modelMatrix, VP.viewMatrix, VP.projectionMatrix, wireframed, movingTexture, isObjectSun);
+        renderer.renderObject(Renderer::HROUDA, brass, modelMatrix, VP.viewMatrix, VP.projectionMatrix, wireframed, movingTexture, isObjectSun);
     }
     //=================================================================
     glDisable(GL_STENCIL_TEST);
@@ -168,9 +228,9 @@ void lateWorldUpdate(float deltaTime)
             camera->changeCenterPoint(objects[SUN]->getPosition());
             break;
         case Camera::SPHERICAL:
-            //camera->setPosition(objects[follow_planet]->getPosition() - spherePosition);
-            camera->setPosition(renderer.hrouda.position - spherePosition);
-            camera->changeCenterPoint(renderer.hrouda.position);
+            camera->setPosition(objects[follow_planet]->getPosition() - spherePosition);
+            //camera->setPosition(renderer.hrouda.position - spherePosition);
+            camera->changeCenterPoint(objects[follow_planet]->getPosition());
             break;
         default:
             break;
@@ -180,9 +240,11 @@ void lateWorldUpdate(float deltaTime)
 void updateWorld(float deltaTime)
 {
     for (Planet* o : objects)
+    {
         o->Update(deltaTime);
+    }
 
-    // SPACE MONKEY ===================================================
+    // SPACE HROUDA ===================================================
     //auto t = fmod(elapsedTime, 5.0) / 5.0;
     //renderer.hrouda.position = spline->get_Position_Catmull_Rom(t);
     //renderer.hrouda.direction = -spline->get_1stDerivative_Catmull_Rom(t);
@@ -209,7 +271,24 @@ void timerCallback(int)
         {
             if (elapsedTime - ((Fire*)(*it))->getStartingTime() > ANIMATION_LENGTH)
             {
+                delete* it;
                 it = fire.erase(it);
+            }
+            else 
+                ++it;
+        }
+    }
+
+    if (!objects.empty())
+    {
+        
+        for (auto it = objects.begin(); it != objects.end();)
+        {
+            Planet* p = (Planet*)(*it);
+            if (p->isPlanetDestroyed() && !p->isPlanetSun())
+            {
+                delete* it;
+                it = objects.erase(it);
             }
             else 
                 ++it;
@@ -326,7 +405,7 @@ void keyboardSpecialCallback(int key, int x, int y) {
             break;
         case GLUT_KEY_F2:
             if (camera->getCameraControlType() == Camera::SPHERICAL)
-                follow_planet = static_cast<PlanetsOrder>((follow_planet + 1) % PLANETS_LENGTH);
+                follow_planet = (follow_planet + 1) % objects.size();
             camera->changeCameraControl(Camera::SPHERICAL);
             break;
         case GLUT_KEY_F3:
@@ -371,16 +450,16 @@ void mouseCallback(int buttonPressed, int buttonState, int mouseX, int mouseY)
 
     if ((buttonPressed == GLUT_LEFT_BUTTON) && (buttonState == GLUT_DOWN)) 
     {
-        unsigned char asteroidID = 0;
-        glReadPixels(mouseX, WIN_HEIGHT - mouseY, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, &asteroidID);
+        unsigned char planetId = 0;
+        glReadPixels(mouseX, WIN_HEIGHT - mouseY, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, &planetId);
 
-        if (asteroidID == 0) 
+        if (planetId == 0)
             printf("Clicked on background\n");
         
         else 
         { 
             auto it = objects.begin();
-            std::advance(it, asteroidID - 1);
+            std::advance(it, planetId - 1);
             Planet* selectedPlanet = (Planet *)(*it);
             Transform t = selectedPlanet->getTransform();
 
