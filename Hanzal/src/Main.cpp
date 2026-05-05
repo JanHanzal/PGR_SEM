@@ -7,8 +7,8 @@
 #include "Spline.h"
 
 
-int WIN_WIDTH = FULLSCREEN_WIDTH;
-int WIN_HEIGHT = FULLSCREEN_HEIGHT;
+int WIN_WIDTH = WINDOWED_WIDTH;
+int WIN_HEIGHT = WINDOWED_HEIGHT;
 bool FULLSCREEN = true;
 
 
@@ -373,11 +373,32 @@ void timerCallback(int)
     glutPostRedisplay();
 }
 
+void toggleFullScreen()
+{
+    FULLSCREEN = !FULLSCREEN;
+
+    if (FULLSCREEN)
+    {
+        glutFullScreen();
+    }
+    else
+    {
+        glutLeaveFullScreen();
+
+        glutReshapeWindow(WINDOWED_WIDTH, WINDOWED_HEIGHT);
+
+        int screenWidth = glutGet(GLUT_SCREEN_WIDTH);
+        int screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
+        glutPositionWindow(
+            (screenWidth - WINDOWED_WIDTH) / 2,
+            (screenHeight - WINDOWED_HEIGHT) / 2
+        );
+    }
+}
 
 
 void onReshape(int width, int height)
 {
-    glutReshapeWindow(width, height);
     camera->reshapeWindow(width, height);
     WIN_WIDTH = width;
     WIN_HEIGHT = height;
@@ -421,7 +442,7 @@ void keyboardCallback(unsigned char keyPressed, int mouseX, int mouseY)
             break;
         case 'f':
         case 'F':
-            glutFullScreenToggle();
+            toggleFullScreen();
             break;
         case ' ':
             lockedMouse = !lockedMouse;
@@ -491,10 +512,10 @@ void keyboardSpecialCallback(int key, int x, int y) {
             camera->changeCameraControl(Camera::FREE);
             break;
         case GLUT_KEY_F4:
-            renderer.changeActiveLightning();
+            renderer.changeFogEnablement();
             break;
         case GLUT_KEY_F5:
-            renderer.changeFogEnablement();
+            renderer.changeActiveLightning();
             break;
         case GLUT_KEY_F6:
             renderer.toggleDirectionalLightParams();
@@ -583,11 +604,10 @@ int main(int argc, char** argv) {
 
     initApplication();
     initScene();
-    
+
     if(FULLSCREEN)
         glutFullScreen();
     
-
     glutMainLoop();
 
   
