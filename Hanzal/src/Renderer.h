@@ -44,6 +44,7 @@ class Renderer
 		SkyboxShader skyboxShader;
 		AnimatedBillboardShaderProgram animBillboardShader;
 
+
 		DirectionalLight directionalLight;
 		SpotLight spotLight;
 		PointLight pointLight;
@@ -72,7 +73,7 @@ class Renderer
 
 		void Init();
 
-		void changeDirectionalLightParams(DirectionalLight newDirLight);
+		void toggleDirectionalLightParams();
 
 		void changeSpotLightParams(SpotLight _spotLight);
 		

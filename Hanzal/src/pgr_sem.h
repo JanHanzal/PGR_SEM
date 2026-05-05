@@ -14,7 +14,6 @@ extern Renderer renderer;
 #define PHI transform.rotation.x
 #define THETA transform.rotation.z
 
-
 struct Transform
 {
     glm::vec3 position;
@@ -55,7 +54,7 @@ class Camera
         ViewProjectionMatrix vpMatrix;
         
         glm::vec3 center = { 0.0f, 0.0f, 0.0f };
-        glm::vec3 upVector = { 0.0f, 0.0f, 1.0f };
+        glm::vec3 upVector = WORLD_UP_VECTOR;
 
 
         void updateCameraMatrixes()
@@ -163,6 +162,11 @@ class Camera
             return (center - transform.position);
         }
         
+        void changeCameraProjectionType()
+        {
+            projectionType = static_cast<ProjectionType>((projectionType + 1) % 2);
+        }
+
         void changeCameraProjectionType(ProjectionType _projectionType)
         {         
             projectionType = _projectionType;

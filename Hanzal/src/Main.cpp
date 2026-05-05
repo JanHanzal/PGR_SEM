@@ -6,12 +6,15 @@
 #include "Materials.h"
 #include "Spline.h"
 
-int WIN_WIDTH = 1920;
-int WIN_HEIGHT = 1080;
-const char* WIN_TITLE = "Hanzal Semestral Assignment";
+
+int WIN_WIDTH = FULLSCREEN_WIDTH;
+int WIN_HEIGHT = FULLSCREEN_HEIGHT;
+bool FULLSCREEN = true;
+
 
 float elapsedTime = 0.0f;
 bool lockedMouse = true;
+
 
 std::vector<Planet*> objects;
 std::vector<Fire*> fire;
@@ -19,7 +22,6 @@ Renderer renderer;
 Camera* camera;
 Spline* spline;
 
-//PlanetsOrder follow_planet = PlanetsOrder::SUN;
 size_t follow_planet = 0;
 
 
@@ -55,6 +57,19 @@ void initApplication()
 
 void initScene()
 {
+    if (!objects.empty())
+    {
+        for (auto it = objects.begin(); it != objects.end();)
+        {
+            Planet* p = (Planet*)(*it);
+            delete* it;
+            it = objects.erase(it);
+        }
+    }
+
+    
+
+    default_planet_material.texture = sun_texture;
     Planet* sun = new Planet(
         {SUN_POSITION, SUN_ROTATION, SUN_SCALE},
         Renderer::SPHERE,
@@ -67,13 +82,14 @@ void initScene()
     objects.push_back(sun);
 
 
-    default_planet_material.shininess = 8.0f;
-    default_planet_material.texture = earth_texture;
     
+    Material earth_mat = default_planet_material;
+    earth_mat.shininess = 8.0f;
+    earth_mat.texture = earth_texture;
     Planet* earth = new Planet(
         { EARTH_POSITION, EARTH_ROTATION, EARTH_SCALE },
         Renderer::SPHERE,
-        default_planet_material,
+        earth_mat,
         EARTH_MASS,
         500.0f,
         false,
@@ -81,11 +97,13 @@ void initScene()
     );
     objects.push_back(earth);
 
-    default_planet_material.texture = saturn_texture;
+
+    Material saturn_mat = default_planet_material;
+    saturn_mat.texture = saturn_texture;
     Planet* saturn = new Planet(
         {SATURN_POSITION, SATURN_ROTATION, SATURN_SCALE},
         Renderer::SPHERE,
-        default_planet_material,
+        saturn_mat,
         SATURN_MASS,
         50.0f, 
         false,
@@ -93,43 +111,47 @@ void initScene()
     );
     objects.push_back(saturn);
 
-    Planet* planet1 = new Planet(
+    Material moon_mat = default_planet_material;
+    moon_mat.texture = moon_texture;
+    Planet* moon = new Planet(
         { glm::vec3(200), SATURN_ROTATION, EARTH_SCALE},
         Renderer::SPHERE,
-        default_planet_material,
-        0,
+        moon_mat,
         EARTH_MASS,
+        25.0f,
         false,
         objects
     );
-    objects.push_back(planet1);
+    objects.push_back(moon);
 
+    Material neptune_mat = default_planet_material;
+    neptune_mat.texture = neptune_texture;
     Planet* planet2 = new Planet(
-        { glm::vec3(100, 100, 200), SATURN_ROTATION, EARTH_SCALE },
+        { glm::vec3(100, 500, 200), EARTH_ROTATION, EARTH_SCALE },
         Renderer::SPHERE,
-        default_planet_material,
-        20,
+        neptune_mat,
         EARTH_MASS,
+        20.0f,
         false,
         objects
     );
     objects.push_back(planet2);
 
     Planet* planet3 = new Planet(
-        { glm::vec3(100, 100, 300), SATURN_ROTATION, EARTH_SCALE },
+        { glm::vec3(100, 100, 300), EARTH_ROTATION, EARTH_SCALE },
         Renderer::SPHERE,
         default_planet_material,
-        20,
         EARTH_MASS,
+        40.0f,
         false,
         objects
     );
     objects.push_back(planet3);
 
 
-    // CRASH TEST ==============================================================
-    Planet* crashTest1 = new Planet(
-        { glm::vec3(400.0f, 0.0f, 0.0f), glm::vec3(0.0f), glm::vec3(5.0f) },
+
+    Planet* planet4 = new Planet(
+        { glm::vec3(400.0f, 0.0f, 0.0f), SUN_ROTATION, SATURN_SCALE },
         Renderer::SPHERE,
         default_planet_material,
         EARTH_MASS,
@@ -137,10 +159,12 @@ void initScene()
         false,
         objects
     );
-    objects.push_back(crashTest1);
+    objects.push_back(planet4);
 
-    Planet* crashTest2 = new Planet(
-        { glm::vec3(400.0f, 0.0f, -40.0f), SUN_ROTATION, SUN_SCALE},
+
+
+    Planet* planet5 = new Planet(
+        { glm::vec3(400.0f, 0.0f, -40.0f), SUN_ROTATION, SATURN_SCALE },
         Renderer::SPHERE,
         default_planet_material,
         SUN_MASS,
@@ -148,8 +172,18 @@ void initScene()
         true,
         objects
     );
-    objects.push_back(crashTest2);
-    // CRASH TEST ==============================================================
+    objects.push_back(planet5);
+
+    Planet* spaceship = new Planet(
+        { glm::vec3(-450.0f, 0.0f, -30.0f), glm::vec3(0.0f), SATURN_SCALE},
+        Renderer::GHOUL,
+        pewter,
+        1000.0,
+        250.0f,
+        false,
+        objects
+    );
+    objects.push_back(spaceship);
 
 }
 
@@ -182,13 +216,13 @@ void onDisplay(void)
     size_t id = 0;
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    for (Planet* o : objects)
+    for (Planet* planet : objects)
     {
-        if (objects[EARTH] == o && camera->getCameraControlType() == Camera::LOCKED)
+        if (objects[1] == planet && camera->getCameraControlType() == Camera::LOCKED)
             continue;
 
         glStencilFunc(GL_ALWAYS, id + 1, 0);
-        o->renderObject(VP.viewMatrix, VP.projectionMatrix);
+        planet->renderObject(VP.viewMatrix, VP.projectionMatrix);
         id++;
     }
 
@@ -209,7 +243,6 @@ void onDisplay(void)
     {
         Transform fire_t = f->getTransform();
         renderer.renderFire(fire_t.position, fire_t.scale.x, f->getStartingTime(), elapsedTime, VP.viewMatrix, VP.projectionMatrix);
-
     }
     
     
@@ -224,12 +257,11 @@ void lateWorldUpdate(float deltaTime)
         case Camera::FREE:
             break;
         case Camera::LOCKED:
-            camera->setPosition(objects[EARTH]->getPosition());
+            camera->setPosition(objects[1]->getPosition());
             camera->changeCenterPoint(objects[SUN]->getPosition());
             break;
         case Camera::SPHERICAL:
             camera->setPosition(objects[follow_planet]->getPosition() - spherePosition);
-            //camera->setPosition(renderer.hrouda.position - spherePosition);
             camera->changeCenterPoint(objects[follow_planet]->getPosition());
             break;
         default:
@@ -260,11 +292,13 @@ void updateWorld(float deltaTime)
 
 void timerCallback(int) 
 {
+   
+
     float currentTime = 0.001f * (float)glutGet(GLUT_ELAPSED_TIME);
     float deltaTime = currentTime - elapsedTime;
     elapsedTime = currentTime;
     
-    
+    // Erasing destroyed or "expired" objects
     if (!fire.empty())
     {
         for (auto it = fire.begin(); it != fire.end();)
@@ -281,21 +315,39 @@ void timerCallback(int)
 
     if (!objects.empty())
     {
-        
+        size_t i = 0;
         for (auto it = objects.begin(); it != objects.end();)
         {
             Planet* p = (Planet*)(*it);
             if (p->isPlanetDestroyed() && !p->isPlanetSun())
             {
+                printf("Planet %i destroyed!\n", i);
                 delete* it;
                 it = objects.erase(it);
+                
+                if (i < follow_planet)
+                {
+                    follow_planet--;
+
+                    if (follow_planet < 1)
+                        follow_planet = 1;
+                }
+                else if (i == follow_planet)
+                    follow_planet = 1;
+                
             }
-            else 
+            else
+            {
                 ++it;
+                ++i;
+            }
         }
     }
 
+
+
     updateWorld(deltaTime);
+    
     
     //==============================================
     //Camera Input==================================
@@ -317,7 +369,6 @@ void timerCallback(int)
     //==============================================
     //==============================================
 
-
     glutTimerFunc(1000/FPS, timerCallback, 0);
     glutPostRedisplay();
 }
@@ -337,64 +388,86 @@ void keyboardCallback(unsigned char keyPressed, int mouseX, int mouseY)
 {
     switch (keyPressed)
     {
-    case 27:
-        glutLeaveMainLoop();
-        break;
-    case 'e':
-        _input[E] = true;
-        break;
-    case 'q':
-        _input[Q] = true;
-        break;
-    case 'w':
-        _input[W] = true;
-        break;
-    case 's':
-        _input[S] = true;
-        break;
-    case 'a':
-        _input[A] = true;
-        break;
-    case 'd':
-        _input[D] = true;
-        break;
-    case ' ':
-        lockedMouse = !lockedMouse;
-        if (lockedMouse)
-            glutSetCursor(GLUT_CURSOR_NONE);
-        else
-            glutSetCursor(GLUT_CURSOR_INHERIT);
+        case 27:
+            glutLeaveMainLoop();
+            break;
+        case 'e':
+        case 'E':
+            _input[E] = true;
+            break;
+        case 'q':
+        case 'Q':
+            _input[Q] = true;
+            break;
+        case 'w':
+        case 'W':
+            _input[W] = true;
+            break;
+        case 's':
+        case 'S':
+            _input[S] = true;
+            break;
+        case 'a':
+        case 'A':
+            _input[A] = true;
+            break;
+        case 'd':
+        case 'D':
+            _input[D] = true;
+            break;
+        case 'r':
+        case 'R':
+            initScene();
+            break;
+        case 'f':
+        case 'F':
+            glutFullScreenToggle();
+            break;
+        case ' ':
+            lockedMouse = !lockedMouse;
+            if (lockedMouse)
+                glutSetCursor(GLUT_CURSOR_NONE);
+            else
+                glutSetCursor(GLUT_CURSOR_INHERIT);
 
-        break;
-    default:
-        break;
+            break;
+        default:
+            break;
     }
+    if ((glutGetModifiers() & GLUT_ACTIVE_SHIFT) && (keyPressed == 'C' || keyPressed == 'c')) 
+        camera->changeCameraProjectionType();
 }
 
 void keyboardUpCallback(unsigned char keyReleased, int mouseX, int mouseY) {
 
-    switch (keyReleased) {
-    
-    case 'e':
-        _input[E] = false;
-        break;
-    case 'q':
-        _input[Q] = false;
-        break;
-    case 'w':
-        _input[W] = false;
-        break;
-    case 's':
-        _input[S] = false;
-        break;
-    case 'a':
-        _input[A] = false;
-        break;
-    case 'd':
-        _input[D] = false;
-        break;
-    default:
-        ;
+    switch (keyReleased) 
+    {
+        case 'e':
+        case 'E':
+            _input[E] = false;
+            break;
+        case 'q':
+        case 'Q':
+            _input[Q] = false;
+            break;
+        case 'w':
+        case 'W':
+            _input[W] = false;
+            break;
+        case 's':
+        case 'S':
+            _input[S] = false;
+            break;
+        case 'a':
+        case 'A':
+            _input[A] = false;
+            break;
+        case 'd':
+        case 'D':
+            _input[D] = false;
+            break;
+        default:
+            ;
     }
 }
 
@@ -405,7 +478,13 @@ void keyboardSpecialCallback(int key, int x, int y) {
             break;
         case GLUT_KEY_F2:
             if (camera->getCameraControlType() == Camera::SPHERICAL)
-                follow_planet = (follow_planet + 1) % objects.size();
+            {
+                follow_planet++;
+                if (follow_planet >= objects.size())
+                {
+                    follow_planet = 1;
+                }
+            }
             camera->changeCameraControl(Camera::SPHERICAL);
             break;
         case GLUT_KEY_F3:
@@ -417,6 +496,9 @@ void keyboardSpecialCallback(int key, int x, int y) {
         case GLUT_KEY_F5:
             renderer.changeFogEnablement();
             break;
+        case GLUT_KEY_F6:
+            renderer.toggleDirectionalLightParams();
+            break;
     }
 }
 
@@ -427,7 +509,7 @@ void mouseWheelCallback(int wheel, int direction, int x, int y) {
 
 void passiveMouseMotionCallback(int mouseX, int mouseY) 
 {
-    if (!lockedMouse)
+    if (!lockedMouse || camera->getCameraControlType() == Camera::LOCKED)
         return;
 
     int cx = WIN_WIDTH / 2, cy = WIN_HEIGHT / 2;
@@ -439,7 +521,6 @@ void passiveMouseMotionCallback(int mouseX, int mouseY)
 
     camera->rotateCamera(deltaX, deltaY);
     glutWarpPointer(cx, cy);
-    glutPostRedisplay();
 }
 
 void mouseCallback(int buttonPressed, int buttonState, int mouseX, int mouseY) 
@@ -502,7 +583,9 @@ int main(int argc, char** argv) {
 
     initApplication();
     initScene();
-    glutFullScreen();
+    
+    if(FULLSCREEN)
+        glutFullScreen();
     
 
     glutMainLoop();

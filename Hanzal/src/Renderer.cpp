@@ -28,7 +28,7 @@ void Renderer::setUpLights()
 		glm::vec3(0.0f, 0.0f, 1.0f),// Position 
 		glm::vec3(0.1f),			// Ambient
 		glm::vec3(1.0f),			// Diffuse
-		glm::vec3(0.5f)				// Specular
+		glm::vec3(0.2f)				// Specular
 	};
 
 	spotLight = {
@@ -51,7 +51,7 @@ void Renderer::setUpLights()
 		glm::vec3(1.0f),			// Diffuse
 		glm::vec3(0.5f),			// Specular
 
-		1000.0f,					// Radius
+		2500.0f,					// Radius
 		false						// Is fading quadratic?
 	};
 }
@@ -202,9 +202,14 @@ void Renderer::changeFogEnablement()
 	FOG_ENABLED = !FOG_ENABLED;
 }
 
-void Renderer::changeDirectionalLightParams(DirectionalLight newDirLight)
+void Renderer::toggleDirectionalLightParams()
 {
-	directionalLight = newDirLight;
+	if (directionalLight.ambient == glm::vec3(0.1f))
+		directionalLight.ambient = glm::vec3(1.0f);
+	
+	else
+		directionalLight.ambient = glm::vec3(0.1f);
+
 }
 
 void Renderer::changeSpotLightParams(SpotLight _spotLight)

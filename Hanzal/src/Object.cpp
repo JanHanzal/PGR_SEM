@@ -115,9 +115,20 @@ void Planet::Update(float timeDelta)
     
     Move(velocity * timeDelta);
 
-    glm::vec3 rotationVector = glm::vec3(0.0f, 30.0f, 0.0f);
-    Rotate(rotationVector * timeDelta);
+    //Might use rotation later but for now it doesnt look that good
+    // 
+    //glm::vec3 rotationVector = glm::vec3(0.0f, 30.0f, 0.0f);
+    //Rotate(rotationVector * timeDelta);
 }
+
+float Planet::getAcceleration(const float mass, const float radius)
+{
+    if (radius <= transform.scale.x)
+        return G * mass;
+    float acceleration = G * mass / pow(radius, 2);
+    return acceleration;
+}
+
 
 void Planet::renderObject(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
@@ -133,13 +144,6 @@ void Planet::renderObject(const glm::mat4& viewMatrix, const glm::mat4& projecti
     renderer.renderObject(objectType, material, modelMatrix, viewMatrix, projectionMatrix, wireframed, movingTexture, isSun);
 }
 
-float Planet::getAcceleration(const float mass, const float radius)
-{
-    if (radius <= transform.scale.x)
-        return G * mass;
-    float acceleration = G * mass / pow(radius, 2);
-    return acceleration;
-}
 
 bool Planet::isPlanetSun() 
 {

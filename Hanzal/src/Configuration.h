@@ -3,8 +3,17 @@
 
 #include "pgr.h"
 
+#define WIN_TITLE "Hanzal Semestral Assignment"
+
 #define SCENE_WIDTH  1.0f
 #define SCENE_HEIGHT 1.0f
+
+#define FULLSCREEN_WIDTH 1920
+#define FULLSCREEN_HEIGHT 1080
+
+#define WINDOWED_WIDTH 800
+#define WINDOWED_HEIGHT 800
+
 
 #define WORLD_BOUND 2000
 
@@ -37,7 +46,7 @@
 #define SATURN_SCALE glm::vec3(5.0f)
 #define SATURN_MASS 10000.0
 
-//This enum is only used for initial order with only 3 planets -> might add more
+//This enum is only used for initial order with only 3 planets -> might add more later
 enum PlanetsOrder
 {
 	SUN,

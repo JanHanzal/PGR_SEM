@@ -1,16 +1,23 @@
 #include "Materials.h"
 
 
-#define SUN_TEXTURE_PATH "Data/Sun2.jpg"
-#define EARTH_TEXTURE_PATH "Data/Earth.jpg"
-#define SATURN_TEXTURE_PATH "Data/Saturn.jpg"
-#define GOLD_TEXTURE_PATH "Data/Gold.jpg"
-#define SILVER_TEXTURE_PATH "Data/Silver.jpg"
+#define SUN_TEXTURE_PATH "Data/Textures/Planet/Sun2.jpg"
+#define EARTH_TEXTURE_PATH "Data/Textures/Planet/Earth.jpg"
+#define SATURN_TEXTURE_PATH "Data/Textures/Planet/Saturn.jpg"
+#define MOON_TEXTURE_PATH "Data/Textures/Planet/Moon.jpg"
+#define NEPTUNE_TEXTURE_PATH "Data/Textures/Planet/Neptune.jpg"
+
+
+#define GOLD_TEXTURE_PATH "Data/Textures/Material/Gold.jpg"
+#define SILVER_TEXTURE_PATH "Data/Textures/Material/Silver.jpg"
 
 //Textures
 GLuint sun_texture;
 GLuint earth_texture;
 GLuint saturn_texture;
+GLuint moon_texture;
+GLuint neptune_texture;
+
 GLuint gold_texture;
 GLuint silver_texture;
 
@@ -26,6 +33,9 @@ void createTextures()
 	sun_texture = pgr::createTexture(SUN_TEXTURE_PATH);
 	earth_texture = pgr::createTexture(EARTH_TEXTURE_PATH);
 	saturn_texture = pgr::createTexture(SATURN_TEXTURE_PATH);
+	moon_texture = pgr::createTexture(MOON_TEXTURE_PATH);
+	neptune_texture = pgr::createTexture(NEPTUNE_TEXTURE_PATH);
+	
 	gold_texture = pgr::createTexture(GOLD_TEXTURE_PATH);
 	silver_texture = pgr::createTexture(SILVER_TEXTURE_PATH);
 }
