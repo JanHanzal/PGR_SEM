@@ -147,7 +147,7 @@ void Renderer::initSkybox()
 
 	for (int i = 0; i < 6; i++)
 	{
-		std::string path = std::string("Data/") + names[i] + ".jpg";
+		std::string path = std::string("Data/Textures/Skybox/") + names[i] + ".jpg";
 		if (!pgr::loadTexImage2D(path, textures[i]))
 			pgr::dieWithError("Loading skybox failed!");
 	}
@@ -165,7 +165,7 @@ void Renderer::initSkybox()
 
 void Renderer::initFireBillboard(MeshGeometry** fireGeometry)
 {
-	const char* FIRE_TEXTURE_NAME = "Data/explosion.png";
+	const char* FIRE_TEXTURE_NAME = "Data/Textures/AnimatedBillboard/explosion.png";
 	*fireGeometry = new MeshGeometry;
 
 	(*fireGeometry)->material.texture = pgr::createTexture(FIRE_TEXTURE_NAME);

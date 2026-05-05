@@ -98,6 +98,7 @@ void initScene()
     objects.push_back(earth);
 
 
+
     Material saturn_mat = default_planet_material;
     saturn_mat.texture = saturn_texture;
     Planet* saturn = new Planet(
@@ -110,6 +111,8 @@ void initScene()
         objects
     );
     objects.push_back(saturn);
+
+
 
     Material moon_mat = default_planet_material;
     moon_mat.texture = moon_texture;
@@ -124,7 +127,9 @@ void initScene()
     );
     objects.push_back(moon);
 
-    Material neptune_mat = default_planet_material;
+
+
+    Material neptune_mat = pewter;
     neptune_mat.texture = neptune_texture;
     Planet* planet2 = new Planet(
         { glm::vec3(100, 500, 200), EARTH_ROTATION, EARTH_SCALE },
@@ -137,10 +142,12 @@ void initScene()
     );
     objects.push_back(planet2);
 
+
+
     Planet* planet3 = new Planet(
         { glm::vec3(100, 100, 300), EARTH_ROTATION, EARTH_SCALE },
         Renderer::SPHERE,
-        default_planet_material,
+        brass,
         EARTH_MASS,
         40.0f,
         false,
@@ -173,6 +180,8 @@ void initScene()
         objects
     );
     objects.push_back(planet5);
+
+
 
     Planet* spaceship = new Planet(
         { glm::vec3(-450.0f, 0.0f, -30.0f), glm::vec3(0.0f), SATURN_SCALE},
@@ -263,6 +272,9 @@ void lateWorldUpdate(float deltaTime)
         case Camera::SPHERICAL:
             camera->setPosition(objects[follow_planet]->getPosition() - spherePosition);
             camera->changeCenterPoint(objects[follow_planet]->getPosition());
+
+            //camera->setPosition(renderer.hrouda.position - spherePosition);
+            //camera->changeCenterPoint(renderer.hrouda.position);
             break;
         default:
             break;
