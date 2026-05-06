@@ -5,7 +5,7 @@
 #include "Shader.h"
 
 
-
+extern GLuint default_planet_texture;
 extern GLuint sun_texture;
 extern GLuint earth_texture;
 extern GLuint saturn_texture;

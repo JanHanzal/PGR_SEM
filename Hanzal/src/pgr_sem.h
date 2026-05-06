@@ -44,7 +44,7 @@ class Camera
         float aspect;
         float nearPlane = 0.1f, farPlane = 50.0f;
         
-        float radius = RADIUS_MIN;
+        float radius = (RADIUS_MIN + RADIUS_MAX)/2;
         
 
         Camera::ProjectionType projectionType = PERSPECTIVE;

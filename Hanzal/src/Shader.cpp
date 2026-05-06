@@ -56,15 +56,11 @@ void setDirectionalLightUniforms(ObjectShader& shaderProgram, const DirectionalL
 {
 	glUniform3fv(shaderProgram.dl_positionLocation, 
 		1, 
-		glm::value_ptr(glm::vec3( cos(elapsedTime), -sin(elapsedTime), 0.0f))
+		glm::value_ptr(glm::vec3( cos(elapsedTime), -sin(elapsedTime), cos(elapsedTime) * (sin(elapsedTime) - 1)))
 	);
 	glUniform3fv(shaderProgram.dl_ambientLocation, 1, glm::value_ptr(light.ambient));
 	glUniform3fv(shaderProgram.dl_diffuseLocation, 1, glm::value_ptr(light.diffuse));
 	glUniform3fv(shaderProgram.dl_specularLocation, 1, glm::value_ptr(light.specular));
-
-	/*glUniform3fv(shaderProgram.dl_diffuseLocation, 1, glm::value_ptr(
-		glm::vec3(std::max(cos(elapsedTime) , 0.0f), 1.0f, std::max(sin(elapsedTime), 0.0f)))
-	);*/
 	
 }
 

@@ -5,10 +5,10 @@
 #define POINT 2
 
 
-const int   FOG_TYPE    = 1;                  
+const int   FOG_TYPE    = 2;                  
 const vec3  FOG_COLOR   = vec3(0.7, 0.7, 0.7); 
-const float FOG_START   = 50.0;                
-const float FOG_END     = 250.0;               
+const float FOG_START   = 100.0;                
+const float FOG_END     = 300.0;               
 const float FOG_DENSITY = 0.05;                
 
 struct Material {

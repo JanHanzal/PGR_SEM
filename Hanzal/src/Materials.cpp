@@ -1,6 +1,6 @@
 #include "Materials.h"
 
-
+#define DEFAULT_PLANET_TEXTURE_PATH "Data/Textures/Planet/Ceres.jpg"
 #define SUN_TEXTURE_PATH "Data/Textures/Planet/Sun2.jpg"
 #define EARTH_TEXTURE_PATH "Data/Textures/Planet/Earth.jpg"
 #define SATURN_TEXTURE_PATH "Data/Textures/Planet/Saturn.jpg"
@@ -8,10 +8,12 @@
 #define NEPTUNE_TEXTURE_PATH "Data/Textures/Planet/Neptune.jpg"
 
 
+
 #define GOLD_TEXTURE_PATH "Data/Textures/Material/Gold.jpg"
 #define SILVER_TEXTURE_PATH "Data/Textures/Material/Silver.jpg"
 
 //Textures
+GLuint default_planet_texture;
 GLuint sun_texture;
 GLuint earth_texture;
 GLuint saturn_texture;
@@ -30,6 +32,7 @@ Material brass;
 
 void createTextures()
 {
+	default_planet_texture = pgr::createTexture(DEFAULT_PLANET_TEXTURE_PATH);
 	sun_texture = pgr::createTexture(SUN_TEXTURE_PATH);
 	earth_texture = pgr::createTexture(EARTH_TEXTURE_PATH);
 	saturn_texture = pgr::createTexture(SATURN_TEXTURE_PATH);
@@ -49,7 +52,7 @@ void initMaterials()
 	default_planet_material.diffuse = glm::vec3(1.0f);
 	default_planet_material.specular = glm::vec3(1.0f);
 	default_planet_material.shininess = 0.0f;
-	default_planet_material.texture = sun_texture;
+	default_planet_material.texture = default_planet_texture;
 
 	gold.ambient = glm::vec3(0.24725, 0.1995, 0.0745);
 	gold.diffuse = glm::vec3(0.75164, 0.60648, 0.22648);

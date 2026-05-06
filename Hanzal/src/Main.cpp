@@ -9,11 +9,13 @@
 
 int WIN_WIDTH = WINDOWED_WIDTH;
 int WIN_HEIGHT = WINDOWED_HEIGHT;
-bool FULLSCREEN = true;
+bool FULLSCREEN = false;
+bool lockedMouse = true;
 
+bool paused = true;
 
 float elapsedTime = 0.0f;
-bool lockedMouse = true;
+
 
 
 std::vector<Planet*> objects;
@@ -62,18 +64,20 @@ void initScene()
         for (auto it = objects.begin(); it != objects.end();)
         {
             Planet* p = (Planet*)(*it);
-            delete* it;
+            delete p;
             it = objects.erase(it);
         }
     }
 
     
 
-    default_planet_material.texture = sun_texture;
+    Material sun_mat = default_planet_material;
+
+    sun_mat.texture = sun_texture;
     Planet* sun = new Planet(
         {SUN_POSITION, SUN_ROTATION, SUN_SCALE},
         Renderer::SPHERE,
-        default_planet_material,
+        sun_mat,
         SUN_MASS,
         0.0f,
         true,
@@ -87,7 +91,7 @@ void initScene()
     earth_mat.shininess = 8.0f;
     earth_mat.texture = earth_texture;
     Planet* earth = new Planet(
-        { EARTH_POSITION, EARTH_ROTATION, EARTH_SCALE },
+        { EARTH_POSITION, EARTH_ROTATION, EARTH_SCALE},
         Renderer::SPHERE,
         earth_mat,
         EARTH_MASS,
@@ -158,7 +162,7 @@ void initScene()
 
 
     Planet* planet4 = new Planet(
-        { glm::vec3(400.0f, 0.0f, 0.0f), SUN_ROTATION, SATURN_SCALE },
+        { glm::vec3(400.0f, 200.0f, 0.0f), SUN_ROTATION, SATURN_SCALE },
         Renderer::SPHERE,
         default_planet_material,
         EARTH_MASS,
@@ -170,25 +174,25 @@ void initScene()
 
 
 
-    Planet* planet5 = new Planet(
+    Planet* sun2 = new Planet(
         { glm::vec3(400.0f, 0.0f, -40.0f), SUN_ROTATION, SATURN_SCALE },
         Renderer::SPHERE,
-        default_planet_material,
+        sun_mat,
         SUN_MASS,
         0.0f,
         true,
         objects
     );
-    objects.push_back(planet5);
+    objects.push_back(sun2);
 
 
 
     Planet* spaceship = new Planet(
         { glm::vec3(-450.0f, 0.0f, -30.0f), glm::vec3(0.0f), SATURN_SCALE},
         Renderer::GHOUL,
-        pewter,
-        1000.0,
-        250.0f,
+        brass,
+        200.0,
+        50.0f,
         false,
         objects
     );
@@ -206,7 +210,7 @@ void onDisplay(void)
 
     renderer.renderSkybox(VP.viewMatrix, VP.projectionMatrix);
 
-    //Dynamic spotlight position ======================================
+    //Dynamic spotlight position and direction ========================
     {
         SpotLight sl = {
             camera->getPosition(),
@@ -217,7 +221,7 @@ void onDisplay(void)
             glm::vec3(0.5f),
 
             10.0f,
-            1.0f
+            150.0f
         };
         renderer.changeSpotLightParams(sl);
     }
@@ -283,21 +287,26 @@ void lateWorldUpdate(float deltaTime)
 
 void updateWorld(float deltaTime)
 {
-    for (Planet* o : objects)
+    if (!paused)
     {
-        o->Update(deltaTime);
-    }
+        for (Planet* o : objects)
+        {
+            o->Update(deltaTime);
+        }
+    
+        // HROUDA =========================================================
+        /* 
+            auto t = fmod(elapsedTime, 5.0) / 5.0;
+            renderer.hrouda.position = spline->get_Position_Catmull_Rom(t);
+            renderer.hrouda.direction = -spline->get_1stDerivative_Catmull_Rom(t);
+        */
 
-    // SPACE HROUDA ===================================================
-    //auto t = fmod(elapsedTime, 5.0) / 5.0;
-    //renderer.hrouda.position = spline->get_Position_Catmull_Rom(t);
-    //renderer.hrouda.direction = -spline->get_1stDerivative_Catmull_Rom(t);
+        auto t = elapsedTime * 0.4;
+        renderer.hrouda.position = spline->get_Position_Lissajous(t);
+        renderer.hrouda.direction = spline->get_1stDerivative_Lissajous(t);
+        //=================================================================
+    }
     
-    auto t = elapsedTime * 0.4;
-    renderer.hrouda.position = spline->get_Position_Lissajous(t);
-    renderer.hrouda.direction = spline->get_1stDerivative_Lissajous(t);
-    
-    //=================================================================
   
     lateWorldUpdate(deltaTime);
 }
@@ -456,6 +465,10 @@ void keyboardCallback(unsigned char keyPressed, int mouseX, int mouseY)
         case 'F':
             toggleFullScreen();
             break;
+        case 'p':
+        case 'P':
+            paused = !paused;
+            break;
         case ' ':
             lockedMouse = !lockedMouse;
             if (lockedMouse)
@@ -507,6 +520,14 @@ void keyboardUpCallback(unsigned char keyReleased, int mouseX, int mouseY) {
 void keyboardSpecialCallback(int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_F1:
+            if (camera->getCameraControlType() == Camera::LOCKED)
+            {
+                follow_planet++;
+                if (follow_planet >= objects.size())
+                {
+                    follow_planet = 1;
+                }
+            }
             camera->changeCameraControl(Camera::LOCKED);
             break;
         case GLUT_KEY_F2:

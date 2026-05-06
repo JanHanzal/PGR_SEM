@@ -20,7 +20,7 @@ void main() {
     {
         vec3 viewDir = normalize(texCoord_v);
 
-        float fogFactor = smoothstep(0.0, 0.2, viewDir.z);
+        float fogFactor = smoothstep(0.0, 5.0, viewDir.z);
         
         vec3 blendedColor = mix(FOG_COLOR, skyColor.rgb, fogFactor);
         

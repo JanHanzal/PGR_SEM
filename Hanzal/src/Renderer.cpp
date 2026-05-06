@@ -205,11 +205,17 @@ void Renderer::changeFogEnablement()
 void Renderer::toggleDirectionalLightParams()
 {
 	if (directionalLight.ambient == glm::vec3(0.1f))
+	{
 		directionalLight.ambient = glm::vec3(1.0f);
-	
+		directionalLight.diffuse = glm::vec3(0.0f);
+		directionalLight.specular = glm::vec3(0.0f);
+	}
 	else
+	{
 		directionalLight.ambient = glm::vec3(0.1f);
-
+		directionalLight.diffuse = glm::vec3(1.0f);
+		directionalLight.specular = glm::vec3(0.2f);
+	}
 }
 
 void Renderer::changeSpotLightParams(SpotLight _spotLight)
